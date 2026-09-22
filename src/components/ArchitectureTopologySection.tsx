@@ -10,11 +10,13 @@ import {
   Layout, 
   Sparkles, 
   Activity, 
-  Radio
+  Radio,
+  ShieldCheck,
+  CheckCircle2,
+  Layers
 } from 'lucide-react';
 import { SYSTEM_NODES } from '../data/jupiterData';
 import { SystemNode } from '../types';
-import { subtleUpwardFadeVariants } from '../utils/motion';
 
 export const ArchitectureTopologySection: React.FC = () => {
   const [selectedNodeId, setSelectedNodeId] = useState<string>('node-logic');
@@ -37,44 +39,40 @@ export const ArchitectureTopologySection: React.FC = () => {
   };
 
   return (
-    <section id="architecture" className="relative py-24 md:py-32 px-6 md:px-12 lg:px-16 bg-[#07080C] border-t border-white/[0.06]">
-      <motion.div
-        variants={subtleUpwardFadeVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, amount: 0.12 }}
-        className="max-w-7xl mx-auto space-y-16"
-      >
+    <section id="architecture" className="relative py-28 md:py-40 px-6 md:px-12 lg:px-16 bg-[#FFFFFF] border-t border-black/[0.06]">
+      <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-white/[0.06] pb-6 gap-6">
-          <div>
-            <div className="flex items-center gap-2 font-mono-tech text-xs tracking-widest text-[#E5C388] uppercase mb-2">
+        <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-black/[0.08] pb-6 gap-6">
+          <div className="space-y-2">
+            <div className="inline-flex items-center gap-2 font-mono-tech text-xs tracking-wider text-[#0071E3] uppercase font-bold">
               <span>04 // SYSTEM ARCHITECTURE</span>
-              <span>•</span>
-              <span>TOPOLOGICAL HIERARCHY</span>
+              <span className="text-slate-300">•</span>
+              <span className="text-[#667085]">TOPOLOGICAL INTEGRITY</span>
             </div>
-            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-[#F7F5F0] uppercase font-sans">
-              SYSTEM ARCHITECTURE
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-[#0B0D12] uppercase font-sans">
+              System Architecture.
             </h2>
           </div>
-          <p className="max-w-md text-sm text-[#D4CEBF] font-mono-tech">
-            Inspect the complete topological hierarchy from physical hardware up through UI, applied AI, and comprehensive telemetry surveillance.
+          <p className="max-w-md text-sm text-[#667085] font-sans leading-relaxed">
+            Inspect the complete topological hierarchy from bare-metal hardware and network fabrics, through stateless compute, up to machine intelligence and telemetry.
           </p>
         </div>
 
         {/* Main Interactive Stage */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-          {/* Left Column: Interactive Topology Node Pipeline */}
-          <div className="lg:col-span-7 card-luxury rounded-2xl p-6 md:p-8 shadow-xl relative overflow-hidden">
-            <div className="flex items-center justify-between pb-4 border-b border-white/[0.08] text-xs font-mono-tech text-slate-400 mb-6">
-              <span className="flex items-center gap-2">
-                <Radio className="w-3.5 h-3.5 text-[#E5C388]" />
-                <span className="text-[#EDE8DF]">INTERACTIVE TOPOLOGY GRAPH</span>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+          {/* Left Column: Interactive Topology Node Rail */}
+          <div className="lg:col-span-7 bg-[#F7F9FC] border border-black/[0.07] rounded-3xl p-6 sm:p-8 shadow-xs space-y-4">
+            <div className="flex items-center justify-between pb-4 border-b border-black/[0.06] text-xs font-mono-tech text-slate-600">
+              <span className="flex items-center gap-2 font-bold text-[#0B0D12]">
+                <Radio className="w-4 h-4 text-[#0071E3]" />
+                <span>TOPOLOGY PIPELINE INSPECTOR</span>
               </span>
-              <span className="text-[#E5C388] font-semibold">9 ACTIVE TIERS</span>
+              <span className="text-[#0071E3] font-bold bg-white px-2.5 py-1 rounded-full border border-black/[0.05]">
+                9 ACTIVE TIERS
+              </span>
             </div>
 
-            {/* Render Vertical Node Sequence with Connector Rays */}
+            {/* Vertical Nodes */}
             <div className="space-y-2 relative">
               {SYSTEM_NODES.map((node, idx) => {
                 const Icon = getNodeIcon(node.layer);
@@ -82,142 +80,131 @@ export const ArchitectureTopologySection: React.FC = () => {
                 const isConnected = activeNode.connectedTo.includes(node.id) || node.connectedTo.includes(activeNode.id);
 
                 return (
-                  <div key={node.id} className="relative">
-                    <button
-                      onClick={() => setSelectedNodeId(node.id)}
-                      className={`w-full p-3.5 rounded-lg text-left transition-colors duration-150 border flex items-center justify-between group cursor-pointer ${
+                  <button
+                    key={node.id}
+                    onClick={() => setSelectedNodeId(node.id)}
+                    className={`w-full p-3.5 rounded-2xl text-left transition-all duration-150 border flex items-center justify-between group cursor-pointer ${
+                      isSelected
+                        ? 'bg-white border-[#0071E3] shadow-sm ring-1 ring-[#0071E3]'
+                        : isConnected
+                        ? 'bg-white/80 border-slate-200 text-slate-700 hover:border-slate-300'
+                        : 'bg-white/50 border-slate-200/60 hover:border-slate-300 hover:bg-white'
+                    }`}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-xl flex items-center justify-center transition-colors ${
                         isSelected
-                          ? 'bg-[#141825] border-[#E5C388]/60 shadow-md shadow-black/40'
+                          ? 'bg-[#0071E3] text-white'
                           : isConnected
-                          ? 'bg-[#0D101A]/80 border-white/15 text-slate-200'
-                          : 'bg-[#0A0D15]/50 border-white/5 hover:border-white/15 hover:bg-[#101420]'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-md flex items-center justify-center border transition-colors ${
-                          isSelected
-                            ? 'bg-gradient-to-r from-[#E5C388] to-[#C5A059] text-[#0A0D12] border-white/30'
-                            : isConnected
-                            ? 'bg-[#E5C388]/15 border-[#E5C388]/30 text-[#E5C388]'
-                            : 'bg-[#11141E] border-white/10 text-slate-400 group-hover:text-white'
-                        }`}>
-                          <Icon className="w-4 h-4" />
-                        </div>
+                          ? 'bg-blue-50 text-[#0071E3]'
+                          : 'bg-slate-100 text-slate-500 group-hover:text-slate-800'
+                      }`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
 
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono-tech text-[10px] text-slate-400">
-                              0{idx + 1}
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono-tech text-[10px] text-slate-400 font-semibold">
+                            0{idx + 1}
+                          </span>
+                          <span className={`text-xs sm:text-sm font-bold tracking-wider font-mono-tech uppercase ${
+                            isSelected ? 'text-[#0071E3]' : 'text-slate-800 group-hover:text-[#0071E3]'
+                          }`}>
+                            {node.label}
+                          </span>
+                          {isConnected && !isSelected && (
+                            <span className="text-[9px] font-mono-tech text-[#0071E3] bg-blue-50 px-1.5 py-0.5 rounded font-bold">
+                              LINKED
                             </span>
-                            <span className={`text-xs sm:text-sm font-bold tracking-wider font-mono-tech uppercase ${
-                              isSelected ? 'text-[#FFF8EE]' : 'text-slate-300 group-hover:text-white'
-                            }`}>
-                              {node.label}
-                            </span>
-                            {isConnected && !isSelected && (
-                              <span className="text-[9px] font-mono-tech text-[#E5C388] bg-[#E5C388]/15 px-1.5 py-0.2 rounded border border-[#E5C388]/30">
-                                LINKED
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs text-slate-400 line-clamp-1 font-sans">
-                            {node.name}
-                          </p>
+                          )}
                         </div>
+                        <p className="text-xs text-[#667085] line-clamp-1 font-sans">
+                          {node.name}
+                        </p>
                       </div>
+                    </div>
 
-                      <div className="flex items-center gap-4 text-xs font-mono-tech">
-                        <span className="hidden sm:inline text-[11px] text-slate-400">
-                          {node.throughput}
-                        </span>
-                        <div className={`w-2 h-2 rounded-full ${
-                          isSelected ? 'bg-[#E5C388]' : 'bg-emerald-400'
-                        }`} />
-                      </div>
-                    </button>
-
-                    {/* Flow connector line */}
-                    {idx < SYSTEM_NODES.length - 1 && (
-                      <div className="flex justify-center py-0.5">
-                        <div className="w-[1px] h-2 bg-white/10" />
-                      </div>
-                    )}
-                  </div>
+                    <div className="flex items-center gap-3 text-xs font-mono-tech">
+                      <span className="hidden sm:inline text-[11px] text-slate-400">
+                        {node.throughput}
+                      </span>
+                      <div className={`w-2 h-2 rounded-full ${
+                        isSelected ? 'bg-[#0071E3]' : 'bg-emerald-500'
+                      }`} />
+                    </div>
+                  </button>
                 );
               })}
             </div>
           </div>
 
-          {/* Right Column: Node Telemetry & Specification Inspector */}
-          <div className="lg:col-span-5 card-luxury rounded-2xl p-8 shadow-xl relative overflow-hidden">
-            <div className="space-y-6">
-              {/* Node Status Badge */}
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-4">
-                <span className="px-2.5 py-1 rounded bg-[#E5C388]/10 border border-[#E5C388]/30 text-[#E5C388] font-mono-tech text-xs uppercase font-semibold">
-                  TIER REF: {activeNode.label}
+          {/* Right Column: Node Details Inspector Card */}
+          <div className="lg:col-span-5 bg-white border border-black/[0.08] rounded-3xl p-6 sm:p-8 shadow-sm space-y-6">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <span className="font-mono-tech text-xs tracking-wider text-[#0071E3] font-bold uppercase">
+                TIER SPECIFICATION // {activeNode.layer}
+              </span>
+              <span className="font-mono-tech text-[10px] px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
+                ACTIVE
+              </span>
+            </div>
+
+            <div>
+              <span className="font-mono-tech text-xs text-slate-400 uppercase tracking-widest block mb-1">
+                {activeNode.label}
+              </span>
+              <h3 className="text-xl sm:text-2xl font-bold text-[#0B0D12] font-sans">
+                {activeNode.name}
+              </h3>
+            </div>
+
+            <p className="text-sm text-[#667085] leading-relaxed font-sans">
+              {activeNode.description}
+            </p>
+
+            {/* Performance Metrics */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="font-mono-tech text-[10px] text-slate-400 block mb-1">
+                  THROUGHPUT CAPACITY
                 </span>
-                <span className="font-mono-tech text-xs text-emerald-400 flex items-center gap-1.5 font-medium">
-                  <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                  HEALTH: OPTIMAL
+                <span className="font-mono-tech text-sm font-bold text-[#0071E3]">
+                  {activeNode.throughput}
                 </span>
               </div>
-
-              {/* Node Title & Specs */}
-              <div>
-                <h3 className="text-2xl font-bold text-[#F7F5F0] uppercase font-sans">
-                  {activeNode.name}
-                </h3>
-                <p className="text-sm text-[#D4CEBF] mt-2 leading-relaxed font-sans">
-                  {activeNode.description}
-                </p>
-              </div>
-
-              {/* Hardware/Runtime Technical Specifications */}
-              <div className="p-4 rounded-lg bg-[#0F121C] border border-white/[0.08] space-y-1">
-                <span className="font-mono-tech text-[10px] text-slate-400 uppercase tracking-wider block">
-                  RUNTIME SPECIFICATIONS
+              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100">
+                <span className="font-mono-tech text-[10px] text-slate-400 block mb-1">
+                  LATENCY BUDGET
                 </span>
-                <p className="font-mono-tech text-xs text-[#E5C388]">
-                  {activeNode.specs}
-                </p>
+                <span className="font-mono-tech text-sm font-bold text-emerald-600">
+                  {activeNode.latency}
+                </span>
               </div>
+            </div>
 
-              {/* Performance Metrics */}
-              <div className="grid grid-cols-2 gap-4 font-mono-tech text-xs">
-                <div className="p-4 rounded-lg bg-[#0F121C]/80 border border-white/[0.08] space-y-1">
-                  <span className="text-slate-400 block">THROUGHPUT</span>
-                  <span className="text-[#F7F5F0] font-semibold text-sm">{activeNode.throughput}</span>
+            {/* Guarantees */}
+            <div className="space-y-3 pt-2">
+              <span className="font-mono-tech text-xs text-slate-500 uppercase font-bold block">
+                ENGINEERED GUARANTEES
+              </span>
+              <div className="space-y-2.5">
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Stateless horizontal scale with automatic backpressure shedding</span>
                 </div>
-                <div className="p-4 rounded-lg bg-[#0F121C]/80 border border-white/[0.08] space-y-1">
-                  <span className="text-slate-400 block">LATENCY PROFILE</span>
-                  <span className="text-emerald-400 font-semibold text-sm">{activeNode.latency}</span>
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span>Cryptographically verified data consistency and immutable logs</span>
                 </div>
-              </div>
-
-              {/* Connected Topology Nodes */}
-              <div className="space-y-2 pt-2 border-t border-white/[0.08]">
-                <span className="font-mono-tech text-xs text-slate-400 uppercase tracking-wider block">
-                  ACTIVE BIDIRECTIONAL CONNECTIONS
-                </span>
-                <div className="flex flex-wrap gap-2">
-                  {activeNode.connectedTo.map((targetId) => {
-                    const targetNode = SYSTEM_NODES.find(n => n.id === targetId);
-                    return (
-                      <button
-                        key={targetId}
-                        onClick={() => setSelectedNodeId(targetId)}
-                        className="px-2.5 py-1 rounded bg-[#131722] hover:bg-[#1A202E] border border-white/10 text-xs font-mono-tech text-[#E5C388] transition-colors cursor-pointer"
-                      >
-                        → {targetNode?.label || targetId}
-                      </button>
-                    );
-                  })}
+                <div className="flex items-start gap-2.5 text-xs text-slate-700">
+                  <ShieldCheck className="w-4 h-4 text-[#0071E3] shrink-0 mt-0.5" />
+                  <span>Zero-trust mTLS encryption across all inter-service hops</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </section>
   );
 };

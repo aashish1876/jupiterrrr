@@ -2,77 +2,112 @@
 
 @layer base {
   :root {
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
-    --font-display: 'Cinzel', serif;
-    --font-serif: 'Cormorant Garamond', serif;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 
-    --ease-system: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-fast: 150ms;
-    --duration-normal: 250ms;
+    /* Color Tokens */
+    --color-bg-primary: #FFFFFF;
+    --color-bg-secondary: #F7F9FC;
+    --color-bg-soft-blue: #F0F6FF;
+    --color-text-primary: #0B0D12;
+    --color-text-secondary: #667085;
+    --color-text-tertiary: #98A2B3;
+    
+    --color-blue-primary: #0071E3;
+    --color-blue-bright: #0A84FF;
+    --color-blue-deep: #005FCC;
+
+    --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 160ms;
+    --duration-normal: 280ms;
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #07080C;
-    color: #EDE8DF;
+    background-color: #FFFFFF;
+    color: #0B0D12;
     overflow-x: hidden;
     position: relative;
-    /* Clean, ultra-fast GPU gradient without slow SVG filters or fixed attachment */
-    background-image: radial-gradient(circle at 50% 0%, rgba(229, 195, 136, 0.05) 0%, transparent 50%);
+    letter-spacing: -0.015em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: rgba(229, 195, 136, 0.25);
-    color: #FFF9ED;
+    background-color: rgba(0, 113, 227, 0.14);
+    color: #005FCC;
   }
 }
 
-/* Custom technical and typography classes */
+/* Typography & Technical Accents */
 .font-mono-tech {
   font-family: var(--font-mono);
+  letter-spacing: -0.025em;
 }
 
-.metallic-gold-text {
-  background: linear-gradient(135deg, #FFFBF5 0%, #EBD0A7 40%, #CBB07B 80%, #9F8247 100%);
+/* Blue Atmospheric Glows & Gradients */
+.blue-spotlight-radial {
+  background: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.08) 0%, rgba(0, 113, 227, 0.03) 45%, transparent 75%);
+}
+
+.blue-subtle-glow {
+  box-shadow: 0 0 50px -12px rgba(0, 113, 227, 0.18);
+}
+
+.apple-blue-text {
+  background: linear-gradient(135deg, #0071E3 0%, #0A84FF 50%, #005FCC 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.card-luxury {
-  background: rgba(15, 18, 26, 0.85);
-  border: 1px solid rgba(229, 195, 136, 0.12);
-  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+.apple-heading-gradient {
+  background: linear-gradient(180deg, #0B0D12 0%, #344054 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-.card-luxury-hover {
-  transition: border-color var(--duration-fast) var(--ease-system), background-color var(--duration-fast) var(--ease-system);
-}
-.card-luxury-hover:hover {
-  border-color: rgba(229, 195, 136, 0.4);
+/* Luxury Card System */
+.card-apple-clean {
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 8px 24px -4px rgba(0, 0, 0, 0.03);
+  border-radius: 20px;
 }
 
-.grid-blueprint {
-  background-size: 48px 48px;
+.card-apple-clean:hover {
+  border-color: rgba(0, 113, 227, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 20px 32px -8px rgba(0, 113, 227, 0.08);
+}
+
+/* Technical Blueprint Grid on Crisp White */
+.grid-blueprint-ultra {
+  background-size: 40px 40px;
   background-image: 
-    linear-gradient(to right, rgba(229, 195, 136, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(229, 195, 136, 0.025) 1px, transparent 1px);
+    linear-gradient(to right, rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
 }
 
-/* Custom luxury scrollbar */
+/* Frosted Glass Dynamic Island Surface */
+.glass-island {
+  background: rgba(255, 255, 255, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.07);
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+
+/* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #07080C;
+  background: #FFFFFF;
 }
 ::-webkit-scrollbar-thumb {
-  background: #252833;
+  background: #D0D5DD;
   border-radius: 3px;
-  border: 1px solid rgba(229, 195, 136, 0.1);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B3F50;
-  border-color: rgba(229, 195, 136, 0.25);
+  background: #98A2B3;
 }

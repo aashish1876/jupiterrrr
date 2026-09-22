@@ -10,6 +10,7 @@ import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
 import { CapabilityModal } from './components/CapabilityModal';
 import { CaseStudyModal } from './components/CaseStudyModal';
+import { CustomCursor } from './components/CustomCursor';
 import { CapabilityItem, ArchitecturalCaseStudy } from './types';
 
 export default function App() {
@@ -26,8 +27,11 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07080C] text-[#EDE8DF] font-sans selection:bg-[#E5C388]/30 selection:text-[#FFF8EE]">
-      {/* Primary Fixed Navigation */}
+    <div className="min-h-screen bg-[#FFFFFF] text-[#0B0D12] font-sans selection:bg-[#0071E3]/15 selection:text-[#005FCC] antialiased">
+      {/* Desktop Precision Cursor */}
+      <CustomCursor />
+
+      {/* Primary Fixed Floating Navigation */}
       <Navbar onOpenInquiry={() => handleOpenInquiry()} />
 
       {/* Main Continuous Systemic Storytelling Flow:
