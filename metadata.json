@@ -1,0 +1,6 @@
+{
+  "name": "JupiterGenX AI",
+  "description": "JupiterGenX AI — Enterprise Software, Applied AI, Cloud Infrastructure, and Systems Engineering.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

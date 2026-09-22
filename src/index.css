@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --font-display: 'Cinzel', serif;
+    --font-serif: 'Cormorant Garamond', serif;
+
+    --ease-system: cubic-bezier(0.16, 1, 0.3, 1);
+    --duration-fast: 150ms;
+    --duration-normal: 250ms;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #07080C;
+    color: #EDE8DF;
+    overflow-x: hidden;
+    position: relative;
+    /* Clean, ultra-fast GPU gradient without slow SVG filters or fixed attachment */
+    background-image: radial-gradient(circle at 50% 0%, rgba(229, 195, 136, 0.05) 0%, transparent 50%);
+  }
+
+  ::selection {
+    background-color: rgba(229, 195, 136, 0.25);
+    color: #FFF9ED;
+  }
+}
+
+/* Custom technical and typography classes */
+.font-mono-tech {
+  font-family: var(--font-mono);
+}
+
+.metallic-gold-text {
+  background: linear-gradient(135deg, #FFFBF5 0%, #EBD0A7 40%, #CBB07B 80%, #9F8247 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-luxury {
+  background: rgba(15, 18, 26, 0.85);
+  border: 1px solid rgba(229, 195, 136, 0.12);
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+}
+
+.card-luxury-hover {
+  transition: border-color var(--duration-fast) var(--ease-system), background-color var(--duration-fast) var(--ease-system);
+}
+.card-luxury-hover:hover {
+  border-color: rgba(229, 195, 136, 0.4);
+}
+
+.grid-blueprint {
+  background-size: 48px 48px;
+  background-image: 
+    linear-gradient(to right, rgba(229, 195, 136, 0.025) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(229, 195, 136, 0.025) 1px, transparent 1px);
+}
+
+/* Custom luxury scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #07080C;
+}
+::-webkit-scrollbar-thumb {
+  background: #252833;
+  border-radius: 3px;
+  border: 1px solid rgba(229, 195, 136, 0.1);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #3B3F50;
+  border-color: rgba(229, 195, 136, 0.25);
+}
