@@ -1,101 +1,107 @@
 import React from 'react';
-import { ArrowUp, Terminal, ShieldCheck } from 'lucide-react';
-import { COMPANY_DETAILS } from '../data/jupiterData';
+import { Link } from 'react-router-dom';
+import { Linkedin, Youtube, Mail } from 'lucide-react';
 
 export const Footer: React.FC = () => {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
   return (
-    <footer className="relative bg-[#F7F9FC] text-[#0B0D12] border-t border-black/[0.07] px-6 md:px-12 lg:px-16 pt-20 pb-16">
-      <div className="max-w-7xl mx-auto space-y-16">
-        {/* Top Brand & Directory Row */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-          {/* Brand Col */}
-          <div className="lg:col-span-2 space-y-4">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[#0071E3] flex items-center justify-center text-white shadow-xs">
-                <div className="w-2.5 h-2.5 border-2 border-white transform rotate-45" />
-              </div>
-              <span className="text-base font-bold tracking-tight text-[#0B0D12] uppercase font-sans">
-                {COMPANY_DETAILS.shortName}
-              </span>
-            </div>
-            <p className="text-sm text-[#667085] max-w-sm leading-relaxed font-sans">
-              An engineering firm designing resilient enterprise software, applied intelligence, and mission-critical cloud infrastructure.
-            </p>
-            <div className="pt-2 font-mono-tech text-xs text-slate-400">
-              SAN FERNANDO, TRINIDAD & TOBAGO // EST. 2015
-            </div>
-          </div>
+    <footer className="bg-[#020B18] border-t border-white/[0.08] pt-12 pb-10">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        
+        {/* Main Footer Row */}
+        <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-8 border-b border-white/[0.08]">
+          
+          {/* Left: Official Logo */}
+          <Link to="/" className="flex items-center group">
+            <img
+              src="/jupiterlogo.png"
+              alt="JupiterGenX AI - Innovate. Secure. Transform."
+              className="h-10 sm:h-12 w-auto object-contain transition-transform group-hover:scale-102"
+            />
+          </Link>
 
-          {/* Nav Directory */}
-          <div className="space-y-3">
-            <span className="font-mono-tech text-xs text-[#0071E3] uppercase font-bold tracking-wider block">
-              ARCHITECTURE
-            </span>
-            <ul className="space-y-2 text-xs font-sans text-[#667085]">
-              <li><a href="#what-we-do" className="hover:text-[#0071E3] transition-colors">Overview & Purpose</a></li>
-              <li><a href="#capabilities" className="hover:text-[#0071E3] transition-colors">Four Disciplines</a></li>
-              <li><a href="#how-we-work" className="hover:text-[#0071E3] transition-colors">Engineering Lifecycle</a></li>
-              <li><a href="#architecture" className="hover:text-[#0071E3] transition-colors">Topological Hierarchy</a></li>
-              <li><a href="#selected-work" className="hover:text-[#0071E3] transition-colors">Selected Case Studies</a></li>
-            </ul>
-          </div>
+          {/* Center: Nav Links with Divider Pipes */}
+          <nav className="flex flex-wrap items-center justify-center gap-x-3 sm:gap-x-4 gap-y-2 text-xs sm:text-sm font-medium text-[#B7C0CC]">
+            <Link to="/" className="hover:text-white transition-colors">
+              Home
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/ai-automation" className="hover:text-white transition-colors">
+              Services
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/about" className="hover:text-white transition-colors">
+              About
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/contact" className="hover:text-white transition-colors">
+              Contact
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/privacy" className="hover:text-white transition-colors">
+              Privacy Policy
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/terms" className="hover:text-white transition-colors">
+              Terms
+            </Link>
+          </nav>
 
-          {/* Disciplines */}
-          <div className="space-y-3">
-            <span className="font-mono-tech text-xs text-[#0071E3] uppercase font-bold tracking-wider block">
-              DISCIPLINES
-            </span>
-            <ul className="space-y-2 text-xs font-sans text-[#667085]">
-              <li><a href="#service-build" className="hover:text-[#0071E3] transition-colors">Custom Systems (BUILD)</a></li>
-              <li><a href="#service-intelligence" className="hover:text-[#0071E3] transition-colors">Applied AI (INTELLIGENCE)</a></li>
-              <li><a href="#service-transform" className="hover:text-[#0071E3] transition-colors">Modernization (TRANSFORM)</a></li>
-              <li><a href="#service-operate" className="hover:text-[#0071E3] transition-colors">SRE Operations (OPERATE)</a></li>
-            </ul>
-          </div>
-
-          {/* Standards & Top of System Button */}
-          <div className="space-y-4">
-            <span className="font-mono-tech text-xs text-[#0071E3] uppercase font-bold tracking-wider block">
-              OPERATIONAL
-            </span>
-            <div className="p-3.5 rounded-2xl bg-white border border-black/[0.06] text-xs font-mono-tech space-y-1.5 shadow-2xs">
-              <div className="text-emerald-700 font-bold flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                99.999% SLA TARGET
-              </div>
-              <div className="text-slate-500">
-                Deterministic Failover
-              </div>
-            </div>
-
-            <button
-              onClick={scrollToTop}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-white hover:bg-slate-100/80 border border-black/[0.08] text-slate-800 text-xs font-semibold uppercase tracking-wider transition-colors cursor-pointer shadow-2xs"
+          {/* Right: Social Icons */}
+          <div className="flex items-center space-x-4">
+            <a
+              href="https://linkedin.com"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#18BFF2] hover:text-white hover:border-[#18BFF2]/50 hover:bg-[#18BFF2]/10 transition-all"
+              aria-label="LinkedIn"
             >
-              <span>Top of System</span>
-              <ArrowUp className="w-3.5 h-3.5 text-slate-500" />
-            </button>
+              <Linkedin className="w-4 h-4" />
+            </a>
+
+            {/* X (Twitter) custom SVG */}
+            <a
+              href="https://x.com"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#18BFF2] hover:text-white hover:border-[#18BFF2]/50 hover:bg-[#18BFF2]/10 transition-all"
+              aria-label="X"
+            >
+              <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+              </svg>
+            </a>
+
+            <a
+              href="https://youtube.com"
+              target="_blank"
+              rel="noreferrer"
+              className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#18BFF2] hover:text-white hover:border-[#18BFF2]/50 hover:bg-[#18BFF2]/10 transition-all"
+              aria-label="YouTube"
+            >
+              <Youtube className="w-4 h-4" />
+            </a>
+
+            <Link
+              to="/contact"
+              className="w-9 h-9 rounded-lg bg-white/[0.04] border border-white/10 flex items-center justify-center text-[#18BFF2] hover:text-white hover:border-[#18BFF2]/50 hover:bg-[#18BFF2]/10 transition-all"
+              aria-label="Email Us"
+            >
+              <Mail className="w-4 h-4" />
+            </Link>
+          </div>
+
+        </div>
+
+        {/* Bottom Attribution Row */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans text-[#7E8C9F]">
+          <div>
+            © 2026 JupiterGenX AI LLC. All rights reserved.
+          </div>
+          <div className="font-bold tracking-[0.2em] text-[#F4BC43] uppercase text-[11px] sm:text-xs">
+            INNOVATE. SECURE. TRANSFORM.
           </div>
         </div>
 
-        {/* Bottom Legal & Security Attribution */}
-        <div className="pt-8 border-t border-black/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-mono-tech text-slate-400">
-          <div>
-            © {new Date().getFullYear()} {COMPANY_DETAILS.legalName}. All Rights Reserved.
-          </div>
-          <div className="flex items-center gap-4">
-            <span className="flex items-center gap-1 text-slate-500">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#0071E3]" />
-              Enterprise Tier Governance
-            </span>
-            <span>•</span>
-            <span>San Fernando, TT (AST UTC-4)</span>
-          </div>
-        </div>
       </div>
     </footer>
   );

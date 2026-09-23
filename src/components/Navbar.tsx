@@ -1,191 +1,138 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { Menu, X, ArrowUpRight, Activity } from 'lucide-react';
-import { COMPANY_DETAILS } from '../data/jupiterData';
+import { Link, useLocation } from 'react-router-dom';
+import { Menu, X } from 'lucide-react';
 
-interface NavbarProps {
-  onOpenInquiry: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ onOpenInquiry }) => {
-  const [scrolled, setScrolled] = useState<boolean>(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
-  const [activeSection, setActiveSection] = useState<string>('');
+export const Navbar: React.FC = () => {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 30;
-      setScrolled(isScrolled);
-
-      // Simple scroll spy
-      const sections = ['what-we-do', 'capabilities', 'how-we-work', 'architecture', 'selected-work', 'contact'];
-      const scrollPos = window.scrollY + 120;
-
-      for (const sectionId of sections) {
-        const el = document.getElementById(sectionId);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPos >= top && scrollPos < top + height) {
-            setActiveSection(sectionId);
-            break;
-          }
-        }
-      }
+      setScrolled(window.scrollY > 20);
     };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
+    window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const navLinks = [
-    { label: 'Overview', href: '#what-we-do', id: 'what-we-do' },
-    { label: 'Disciplines', href: '#capabilities', id: 'capabilities' },
-    { label: 'Methodology', href: '#how-we-work', id: 'how-we-work' },
-    { label: 'Architecture', href: '#architecture', id: 'architecture' },
-    { label: 'Work', href: '#selected-work', id: 'selected-work' },
+    { name: 'Home', path: '/' },
+    { name: 'AI & Automation', path: '/ai-automation' },
+    { name: 'Cybersecurity', path: '/cybersecurity' },
+    { name: 'Cloud & Infrastructure', path: '/cloud-infrastructure' },
+    { name: 'IT Solutions', path: '/it-solutions' },
+    { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
   ];
 
-  return (
-    <>
-      <header className="fixed top-0 left-0 right-0 z-40 flex justify-center px-4 sm:px-6 pt-3 sm:pt-4 pointer-events-none">
-        <motion.nav
-          initial={{ y: -20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-          className={`pointer-events-auto transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] flex items-center justify-between ${
-            scrolled
-              ? 'w-full max-w-4xl py-2 px-3 sm:px-4 rounded-full glass-island shadow-[0_8px_30px_rgb(0,0,0,0.05)]'
-              : 'w-full max-w-6xl py-3 px-4 sm:px-6 rounded-2xl bg-white/70 backdrop-blur-md border border-black/[0.05]'
-          }`}
-        >
-          {/* Brand Logo & Telemetry */}
-          <a
-            href="#"
-            className="flex items-center gap-2.5 group cursor-pointer"
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-[#0071E3] to-[#005FCC] flex items-center justify-center shadow-xs group-hover:scale-105 transition-transform">
-              <div className="w-2.5 h-2.5 border-2 border-white transform rotate-45" />
-            </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-tight text-[#0B0D12] uppercase font-sans leading-none flex items-center gap-1.5">
-                {COMPANY_DETAILS.shortName}
-                <span className="text-[10px] font-mono-tech font-semibold text-[#0071E3] bg-[#0071E3]/8 px-1.5 py-0.5 rounded-sm">
-                  AI
-                </span>
-              </span>
-              <span className="text-[9px] font-mono-tech text-[#667085] hidden sm:block mt-0.5">
-                EST. 2015 // TT
-              </span>
-            </div>
-          </a>
+  const isActive = (path: string) => {
+    if (path === '/' && location.pathname === '/') return true;
+    if (path !== '/' && location.pathname.startsWith(path)) return true;
+    return false;
+  };
 
-          {/* Desktop Navigation Links */}
-          <div className="hidden md:flex items-center gap-1 bg-black/[0.03] p-1 rounded-full border border-black/[0.04]">
+  return (
+    <nav
+      className={`sticky top-0 z-50 transition-all duration-300 ${
+        scrolled
+          ? 'bg-[#020B18]/90 backdrop-blur-md border-b border-white/10 shadow-lg shadow-black/40 py-3'
+          : 'bg-[#020B18] border-b border-white/[0.08] py-4'
+      }`}
+    >
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between">
+          {/* Logo on Left: Official jupiterlogo.png */}
+          <Link to="/" className="flex items-center group">
+            <img
+              src="/jupiterlogo.png"
+              alt="JupiterGenX AI"
+              className="h-9 sm:h-11 w-auto object-contain transition-transform group-hover:scale-102"
+            />
+          </Link>
+
+          {/* Desktop Center/Right Navigation */}
+          <div className="hidden lg:flex items-center space-x-7 xl:space-x-8">
             {navLinks.map((link) => {
-              const isActive = activeSection === link.id;
+              const active = isActive(link.path);
               return (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  className={`relative px-3.5 py-1.5 text-xs font-medium transition-colors rounded-full font-sans ${
-                    isActive
-                      ? 'text-[#0B0D12] font-semibold'
-                      : 'text-[#667085] hover:text-[#0B0D12]'
+                <Link
+                  key={link.name}
+                  to={link.path}
+                  className={`text-xs xl:text-sm font-medium tracking-wide transition-colors relative py-1 ${
+                    active
+                      ? 'text-white font-semibold'
+                      : 'text-[#B7C0CC] hover:text-white'
                   }`}
                 >
-                  {isActive && (
-                    <motion.div
-                      layoutId="activeNavTab"
-                      className="absolute inset-0 bg-white rounded-full shadow-xs border border-black/[0.06]"
-                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
-                    />
+                  {link.name}
+                  {active && (
+                    <span className="absolute -bottom-1.5 left-0 right-0 h-[2px] bg-[#F4BC43] rounded-full" />
                   )}
-                  <span className="relative z-10">{link.label}</span>
-                </a>
+                </Link>
               );
             })}
           </div>
 
-          {/* Right Area: System Status & Primary CTA */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-[10px] font-mono-tech text-emerald-700">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span>9 TIERS READY</span>
-            </div>
-
-            <button
-              onClick={onOpenInquiry}
-              className="relative inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-[#0071E3] hover:bg-[#005FCC] text-white text-xs font-semibold tracking-wide transition-all shadow-xs hover:shadow-md hover:shadow-blue-500/20 active:scale-97 cursor-pointer"
+          {/* Right CTA: Premium Gold Button */}
+          <div className="hidden sm:flex items-center">
+            <Link
+              to="/contact"
+              className="px-5 py-2 rounded-md bg-[#F4BC43] hover:bg-[#FFD76A] text-[#020B18] text-xs xl:text-sm font-bold tracking-wide transition-all duration-200 shadow-sm hover:shadow-md hover:shadow-[#F4BC43]/20 active:scale-98"
             >
-              <span>Consultation</span>
-              <ArrowUpRight className="w-3.5 h-3.5 text-white/90" />
-            </button>
+              Get in Touch
+            </Link>
+          </div>
 
-            {/* Mobile Hamburger Button */}
+          {/* Mobile Hamburger Menu Toggle */}
+          <div className="flex lg:hidden items-center space-x-3">
+            <Link
+              to="/contact"
+              className="px-3.5 py-1.5 rounded-md bg-[#F4BC43] text-[#020B18] text-xs font-bold sm:hidden"
+            >
+              Contact
+            </Link>
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
-              aria-label="Toggle navigation menu"
+              className="p-2 rounded-md text-[#B7C0CC] hover:text-white hover:bg-white/5 focus:outline-none"
+              aria-label="Toggle menu"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
-        </motion.nav>
-      </header>
+        </div>
+      </div>
 
-      {/* Mobile Navigation Drawer */}
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed inset-x-4 top-20 z-50 p-6 rounded-3xl bg-white/95 backdrop-blur-2xl border border-black/[0.08] shadow-2xl md:hidden space-y-5"
-          >
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <span className="font-mono-tech text-xs text-[#0071E3] font-semibold uppercase">
-                SYSTEM NAVIGATION
-              </span>
-              <button
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="lg:hidden bg-[#061426] border-b border-white/10 px-4 pt-3 pb-6 space-y-2">
+          {navLinks.map((link) => {
+            const active = isActive(link.path);
+            return (
+              <Link
+                key={link.name}
+                to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
-                className="p-1 rounded-full hover:bg-slate-100 text-slate-500"
+                className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+                  active
+                    ? 'text-[#F4BC43] bg-white/5 font-semibold'
+                    : 'text-[#B7C0CC] hover:text-white hover:bg-white/5'
+                }`}
               >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            <div className="flex flex-col space-y-2">
-              {navLinks.map((link) => (
-                <a
-                  key={link.id}
-                  href={link.href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="px-4 py-3 rounded-xl text-sm font-semibold text-slate-800 hover:bg-blue-50 hover:text-[#0071E3] transition-colors flex items-center justify-between"
-                >
-                  <span>{link.label}</span>
-                  <ArrowUpRight className="w-4 h-4 text-slate-400" />
-                </a>
-              ))}
-            </div>
-
-            <div className="pt-2 border-t border-slate-100">
-              <button
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  onOpenInquiry();
-                }}
-                className="w-full py-3.5 rounded-full bg-[#0071E3] text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-blue-500/20 text-center flex items-center justify-center gap-2"
-              >
-                <span>Initiate System Consultation</span>
-                <ArrowUpRight className="w-4 h-4" />
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
+                {link.name}
+              </Link>
+            );
+          })}
+          <div className="pt-4 border-t border-white/10">
+            <Link
+              to="/contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block w-full text-center py-2.5 rounded-md bg-[#F4BC43] text-[#020B18] font-bold text-sm"
+            >
+              Get in Touch
+            </Link>
+          </div>
+        </div>
+      )}
+    </nav>
   );
 };

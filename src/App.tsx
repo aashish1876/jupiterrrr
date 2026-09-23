@@ -1,84 +1,54 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Navbar } from './components/Navbar';
-import { HeroSection } from './components/HeroSection';
-import { IntroSection } from './components/IntroSection';
-import { CapabilitiesSection } from './components/CapabilitiesSection';
-import { ApproachSection } from './components/ApproachSection';
-import { ArchitectureTopologySection } from './components/ArchitectureTopologySection';
-import { CaseStudiesSection } from './components/CaseStudiesSection';
-import { ContactSection } from './components/ContactSection';
 import { Footer } from './components/Footer';
-import { CapabilityModal } from './components/CapabilityModal';
-import { CaseStudyModal } from './components/CaseStudyModal';
+import { ScrollToTop } from './components/ScrollToTop';
 import { CustomCursor } from './components/CustomCursor';
-import { CapabilityItem, ArchitecturalCaseStudy } from './types';
+
+// Pages
+import { HomePage } from './pages/HomePage';
+import { AiAutomationPage } from './pages/AiAutomationPage';
+import { CybersecurityPage } from './pages/CybersecurityPage';
+import { CloudInfrastructurePage } from './pages/CloudInfrastructurePage';
+import { ItSolutionsPage } from './pages/ItSolutionsPage';
+import { SoftwareSolutionsPage } from './pages/SoftwareSolutionsPage';
+import { AboutPage } from './pages/AboutPage';
+import { ContactPage } from './pages/ContactPage';
+import { PrivacyPage } from './pages/PrivacyPage';
+import { TermsPage } from './pages/TermsPage';
 
 export default function App() {
-  const [selectedCapability, setSelectedCapability] = useState<CapabilityItem | null>(null);
-  const [selectedCaseStudy, setSelectedCaseStudy] = useState<ArchitecturalCaseStudy | null>(null);
-  const [inquiryCategory, setInquiryCategory] = useState<string | undefined>(undefined);
-
-  const handleOpenInquiry = (category?: string) => {
-    if (category) {
-      setInquiryCategory(category);
-    }
-    const contactEl = document.getElementById('contact');
-    contactEl?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
-    <div className="min-h-screen bg-[#FFFFFF] text-[#0B0D12] font-sans selection:bg-[#0071E3]/15 selection:text-[#005FCC] antialiased">
-      {/* Desktop Precision Cursor */}
-      <CustomCursor />
+    <BrowserRouter>
+      <ScrollToTop />
+      <div className="min-h-screen bg-[#020B18] text-[#FFFFFF] font-sans selection:bg-[#F4BC43]/25 selection:text-[#FFD76A] antialiased flex flex-col justify-between">
+        {/* Precision Cursor */}
+        <CustomCursor />
 
-      {/* Primary Fixed Floating Navigation */}
-      <Navbar onOpenInquiry={() => handleOpenInquiry()} />
+        {/* Global Navigation */}
+        <Navbar />
 
-      {/* Main Continuous Systemic Storytelling Flow:
-          HERO → WHAT JUPITER DOES → BUILD / INTELLIGENCE / TRANSFORM / OPERATE → HOW WE WORK → SYSTEM ARCHITECTURE → SELECTED WORK → CONTACT */}
-      <main className="relative">
-        {/* 00: HERO */}
-        <HeroSection onOpenInquiry={(cat) => handleOpenInquiry(cat)} />
+        {/* Dynamic Route View */}
+        <main className="flex-grow">
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/ai-automation" element={<AiAutomationPage />} />
+            <Route path="/cybersecurity" element={<CybersecurityPage />} />
+            <Route path="/cloud-infrastructure" element={<CloudInfrastructurePage />} />
+            <Route path="/it-solutions" element={<ItSolutionsPage />} />
+            <Route path="/software-digital-solutions" element={<SoftwareSolutionsPage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/terms" element={<TermsPage />} />
+            {/* Fallback to Home */}
+            <Route path="*" element={<HomePage />} />
+          </Routes>
+        </main>
 
-        {/* 01: WHAT JUPITER DOES */}
-        <IntroSection />
-
-        {/* 02: BUILD / INTELLIGENCE / TRANSFORM / OPERATE */}
-        <CapabilitiesSection
-          onSelectCapability={(cap) => setSelectedCapability(cap)}
-          onOpenInquiry={(cat) => handleOpenInquiry(cat)}
-        />
-
-        {/* 03: HOW WE WORK */}
-        <ApproachSection />
-
-        {/* 04: SYSTEM ARCHITECTURE */}
-        <ArchitectureTopologySection />
-
-        {/* 05: SELECTED WORK */}
-        <CaseStudiesSection
-          onSelectCaseStudy={(study) => setSelectedCaseStudy(study)}
-        />
-
-        {/* 06: CONTACT */}
-        <ContactSection initialCategory={inquiryCategory} />
-      </main>
-
-      {/* Authoritative Global Footer */}
-      <Footer />
-
-      {/* Deep-dive specification modals (Progressive Disclosure) */}
-      <CapabilityModal
-        capability={selectedCapability}
-        onClose={() => setSelectedCapability(null)}
-        onOpenInquiry={(cat) => handleOpenInquiry(cat)}
-      />
-
-      <CaseStudyModal
-        caseStudy={selectedCaseStudy}
-        onClose={() => setSelectedCaseStudy(null)}
-        onOpenInquiry={() => handleOpenInquiry()}
-      />
-    </div>
+        {/* Global Authoritative Footer */}
+        <Footer />
+      </div>
+    </BrowserRouter>
   );
 }

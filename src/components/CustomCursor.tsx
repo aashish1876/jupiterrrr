@@ -49,11 +49,11 @@ export const CustomCursor: React.FC = () => {
 
   return (
     <div className="pointer-events-none fixed inset-0 z-50 overflow-hidden select-none">
-      {/* Precision blue center dot */}
+      {/* Precision Gold Center Dot */}
       <div
         ref={dotRef}
         style={{ willChange: 'transform' }}
-        className="fixed top-0 left-0 -ml-[3px] -mt-[3px] w-1.5 h-1.5 bg-[#0071E3] rounded-full shadow-[0_0_6px_rgba(0,113,227,0.6)] transition-opacity duration-150"
+        className="fixed top-0 left-0 -ml-[3px] -mt-[3px] w-1.5 h-1.5 bg-[#F4BC43] rounded-full shadow-[0_0_8px_rgba(244,188,67,0.9)] transition-opacity duration-150"
       />
     </div>
   );

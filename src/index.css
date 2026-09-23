@@ -2,112 +2,122 @@
 
 @layer base {
   :root {
-    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-
-    /* Color Tokens */
-    --color-bg-primary: #FFFFFF;
-    --color-bg-secondary: #F7F9FC;
-    --color-bg-soft-blue: #F0F6FF;
-    --color-text-primary: #0B0D12;
-    --color-text-secondary: #667085;
-    --color-text-tertiary: #98A2B3;
+    --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-serif: 'Cinzel', 'Times New Roman', Times, serif;
     
-    --color-blue-primary: #0071E3;
-    --color-blue-bright: #0A84FF;
-    --color-blue-deep: #005FCC;
+    /* Official Color Tokens from Reference */
+    --color-bg-main: #020B18;
+    --color-bg-navy: #061426;
+    --color-bg-surface: #091A2D;
+    --color-bg-card: #081729;
 
-    --ease-apple: cubic-bezier(0.16, 1, 0.3, 1);
-    --duration-fast: 160ms;
-    --duration-normal: 280ms;
+    --color-gold: #F4BC43;
+    --color-gold-light: #FFD76A;
+    --color-gold-dark: #C99320;
+
+    --color-blue-electric: #18BFF2;
+    --color-blue-bright: #38CFFF;
+    --color-blue-deep: #0D4E8A;
+
+    --color-text-primary: #FFFFFF;
+    --color-text-secondary: #B7C0CC;
+    --color-text-muted: #7E8C9F;
+
+    --color-border-subtle: rgba(255, 255, 255, 0.12);
+    --color-border-accent: rgba(24, 191, 242, 0.25);
+    --color-border-gold: rgba(244, 188, 67, 0.35);
   }
 
   body {
     font-family: var(--font-sans);
-    background-color: #FFFFFF;
-    color: #0B0D12;
+    background-color: #020B18;
+    color: #FFFFFF;
     overflow-x: hidden;
     position: relative;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: rgba(0, 113, 227, 0.14);
-    color: #005FCC;
+    background-color: rgba(244, 188, 67, 0.25);
+    color: #FFD76A;
   }
 }
 
-/* Typography & Technical Accents */
-.font-mono-tech {
-  font-family: var(--font-mono);
-  letter-spacing: -0.025em;
-}
-
-/* Blue Atmospheric Glows & Gradients */
-.blue-spotlight-radial {
-  background: radial-gradient(circle at 50% 0%, rgba(10, 132, 255, 0.08) 0%, rgba(0, 113, 227, 0.03) 45%, transparent 75%);
-}
-
-.blue-subtle-glow {
-  box-shadow: 0 0 50px -12px rgba(0, 113, 227, 0.18);
-}
-
-.apple-blue-text {
-  background: linear-gradient(135deg, #0071E3 0%, #0A84FF 50%, #005FCC 100%);
+/* Gold Gradient Accents */
+.gold-gradient-text {
+  background: linear-gradient(135deg, #FFD76A 0%, #F4BC43 50%, #E2A62A 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.apple-heading-gradient {
-  background: linear-gradient(180deg, #0B0D12 0%, #344054 100%);
+.gold-btn-gradient {
+  background: linear-gradient(135deg, #FFD76A 0%, #F4BC43 70%, #E5A825 100%);
+  color: #020B18;
+}
+.gold-btn-gradient:hover {
+  background: linear-gradient(135deg, #FFE085 0%, #F8C350 70%, #EDB232 100%);
+  box-shadow: 0 0 20px rgba(244, 188, 67, 0.35);
+}
+
+.electric-blue-text {
+  background: linear-gradient(135deg, #38CFFF 0%, #18BFF2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-/* Luxury Card System */
-.card-apple-clean {
-  background: #FFFFFF;
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02), 0 8px 24px -4px rgba(0, 0, 0, 0.03);
-  border-radius: 20px;
+/* Reference Section Heading Underline Accent */
+.gold-accent-line {
+  position: relative;
+  display: inline-block;
+}
+.gold-accent-line::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 42px;
+  height: 2px;
+  background: #F4BC43;
+  border-radius: 1px;
 }
 
-.card-apple-clean:hover {
-  border-color: rgba(0, 113, 227, 0.3);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), 0 20px 32px -8px rgba(0, 113, 227, 0.08);
+/* Atmospheric Gradients & Glows */
+.hero-radial-glow {
+  background: radial-gradient(circle at 75% 35%, rgba(24, 191, 242, 0.15) 0%, rgba(2, 11, 24, 0) 65%);
 }
 
-/* Technical Blueprint Grid on Crisp White */
-.grid-blueprint-ultra {
-  background-size: 40px 40px;
-  background-image: 
-    linear-gradient(to right, rgba(0, 0, 0, 0.025) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+.gold-radial-glow {
+  background: radial-gradient(circle at 50% 50%, rgba(244, 188, 67, 0.08) 0%, transparent 70%);
 }
 
-/* Frosted Glass Dynamic Island Surface */
-.glass-island {
-  background: rgba(255, 255, 255, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(0, 0, 0, 0.07);
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+/* Card Styling from Reference */
+.enterprise-card {
+  background-color: #081729;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.enterprise-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(24, 191, 242, 0.4);
+  box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.6), 0 0 25px -4px rgba(24, 191, 242, 0.18);
 }
 
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 8px;
+  height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #FFFFFF;
+  background: #020B18;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D0D5DD;
-  border-radius: 3px;
+  background: #0E2744;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #98A2B3;
+  background: #15375E;
 }
