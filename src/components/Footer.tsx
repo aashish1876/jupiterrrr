@@ -25,8 +25,20 @@ export const Footer: React.FC = () => {
               Home
             </Link>
             <span className="text-white/20">|</span>
+            <Link to="/solutions" className="hover:text-white transition-colors">
+              Solutions
+            </Link>
+            <span className="text-white/20">|</span>
             <Link to="/ai-automation" className="hover:text-white transition-colors">
-              Services
+              AI & Automation
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/cybersecurity" className="hover:text-white transition-colors">
+              Cybersecurity
+            </Link>
+            <span className="text-white/20">|</span>
+            <Link to="/insights" className="hover:text-white transition-colors">
+              Insights
             </Link>
             <span className="text-white/20">|</span>
             <Link to="/about" className="hover:text-white transition-colors">
@@ -94,8 +106,11 @@ export const Footer: React.FC = () => {
 
         {/* Bottom Attribution Row */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 text-xs font-sans text-[#7E8C9F]">
-          <div>
-            © 2026 JupiterGenX AI LLC. All rights reserved.
+          <div className="space-y-1 text-center sm:text-left">
+            <div>© 2026 JupiterGenX AI LLC. All rights reserved.</div>
+            <div className="text-[11px] text-[#B7C0CC]/70">
+              2810 N Church St #722289, Wilmington, DE 19802
+            </div>
           </div>
           <div className="font-bold tracking-[0.2em] text-[#F4BC43] uppercase text-[11px] sm:text-xs">
             INNOVATE. SECURE. TRANSFORM.

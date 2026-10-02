@@ -42,7 +42,7 @@ export const IntroSection: React.FC = () => {
 
             <div className="space-y-5 text-base sm:text-lg text-[#667085] font-normal leading-relaxed font-sans max-w-2xl">
               <p>
-                Established in 2015 in San Fernando, Trinidad & Tobago, <strong className="text-[#0B0D12] font-semibold">JupiterGenX AI</strong> is an engineering firm dedicated to building enterprise technology systems that endure.
+                Headquartered at 2810 N Church St #722289, Wilmington, DE 19802, <strong className="text-[#0B0D12] font-semibold">JupiterGenX AI</strong> is an engineering firm dedicated to building enterprise technology systems that endure.
               </p>
               <p>
                 We do not build throwaway prototypes, fragile wrapper applications, or unvetted experiments. We design, harden, and operate mission-critical architectures that industrial institutions, energy trading desks, and government bodies rely upon for uninterrupted operations.

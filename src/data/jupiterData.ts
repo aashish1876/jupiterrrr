@@ -14,8 +14,8 @@ export const COMPANY_DETAILS = {
   subtagline: 'Engineering reliable, enterprise-grade technology infrastructure and intelligent software systems.',
   philosophy: 'Technology should empower organizations rather than restrict them.',
   established: 2015,
-  headquarters: 'San Fernando, Trinidad & Tobago',
-  timezone: 'AST (UTC-4)',
+  headquarters: '2810 N Church St #722289, Wilmington, DE 19802',
+  timezone: 'ET (UTC-5)',
   corePillars: [
     'Engineering',
     'Intelligence',

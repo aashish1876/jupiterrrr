@@ -80,7 +80,7 @@ export const AboutPage: React.FC = () => {
                   INNOVATE. SECURE. TRANSFORM.
                 </div>
                 <div className="text-xs text-[#B7C0CC]">
-                  Founded 2015 • San Fernando, Trinidad & Tobago
+                  2810 N Church St #722289 • Wilmington, DE 19802
                 </div>
               </div>
             </div>

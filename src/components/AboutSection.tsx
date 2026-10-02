@@ -79,9 +79,9 @@ export const AboutSection: React.FC = () => {
         {/* Operational Values Banner */}
         <div className="p-8 md:p-12 rounded-2xl card-luxury grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 font-mono-tech text-xs">
           <div className="space-y-1">
-            <span className="text-slate-400 uppercase">HEADQUARTERS</span>
-            <p className="text-[#F7F5F0] text-sm font-semibold">San Fernando, Trinidad & Tobago</p>
-            <span className="text-slate-400 text-[11px]">Atlantic Standard Time (UTC-4)</span>
+            <span className="text-slate-400 uppercase">CORPORATE ADDRESS</span>
+            <p className="text-[#F7F5F0] text-sm font-semibold">2810 N Church St #722289, Wilmington, DE 19802</p>
+            <span className="text-slate-400 text-[11px]">Eastern Time (UTC-5)</span>
           </div>
           <div className="space-y-1">
             <span className="text-slate-400 uppercase">FOUNDATION YEAR</span>

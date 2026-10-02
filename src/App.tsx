@@ -7,11 +7,13 @@ import { CustomCursor } from './components/CustomCursor';
 
 // Pages
 import { HomePage } from './pages/HomePage';
+import { SolutionsPage } from './pages/SolutionsPage';
 import { AiAutomationPage } from './pages/AiAutomationPage';
 import { CybersecurityPage } from './pages/CybersecurityPage';
 import { CloudInfrastructurePage } from './pages/CloudInfrastructurePage';
 import { ItSolutionsPage } from './pages/ItSolutionsPage';
 import { SoftwareSolutionsPage } from './pages/SoftwareSolutionsPage';
+import { InsightsPage } from './pages/InsightsPage';
 import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPage } from './pages/PrivacyPage';
@@ -32,11 +34,13 @@ export default function App() {
         <main className="flex-grow">
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/solutions" element={<SolutionsPage />} />
             <Route path="/ai-automation" element={<AiAutomationPage />} />
             <Route path="/cybersecurity" element={<CybersecurityPage />} />
             <Route path="/cloud-infrastructure" element={<CloudInfrastructurePage />} />
             <Route path="/it-solutions" element={<ItSolutionsPage />} />
             <Route path="/software-digital-solutions" element={<SoftwareSolutionsPage />} />
+            <Route path="/insights" element={<InsightsPage />} />
             <Route path="/about" element={<AboutPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />

@@ -279,11 +279,15 @@ export const ContactPage: React.FC = () => {
               <div className="space-y-2 text-xs text-[#B7C0CC]">
                 <div className="flex items-start space-x-2.5">
                   <MapPin className="w-4 h-4 text-[#F4BC43] shrink-0 mt-0.5" />
-                  <span>San Fernando, Trinidad & Tobago</span>
+                  <div>
+                    <span className="font-semibold text-white block">JupiterGenX AI LLC</span>
+                    <span>2810 N Church St #722289</span>
+                    <span className="block text-[#7E8C9F]">Wilmington, DE 19802, USA</span>
+                  </div>
                 </div>
                 <div className="flex items-center space-x-2.5">
                   <Clock className="w-4 h-4 text-[#18BFF2] shrink-0" />
-                  <span>Timezone: Atlantic Standard Time (UTC-4)</span>
+                  <span>Timezone: Eastern Time (ET / UTC-5)</span>
                 </div>
                 <div className="flex items-center space-x-2.5">
                   <Sparkles className="w-4 h-4 text-[#F4BC43] shrink-0" />

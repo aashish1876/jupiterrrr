@@ -224,10 +224,10 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ initialCategory 
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-[#0B0D12] font-sans">
-                      San Fernando, Trinidad & Tobago
+                      2810 N Church St #722289, Wilmington, DE 19802
                     </h4>
                     <p className="text-xs text-[#667085] mt-0.5 font-sans leading-relaxed">
-                      Established 2015. Operating across Caribbean critical infrastructure and international enterprise corridors.
+                      Corporate headquarters serving enterprise clients across the Americas, EMEA, and global corridors.
                     </p>
                   </div>
                 </div>
