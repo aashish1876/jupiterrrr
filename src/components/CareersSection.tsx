@@ -76,10 +76,10 @@ export const CareersSection: React.FC = () => {
 
                 <div className="shrink-0">
                   <Link
-                    to={`/careers?role=${opp.id}`}
+                    to={`/careers?apply=${opp.id}`}
                     className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 group-hover:border-[#F4BC43]/40 text-xs font-semibold text-white transition-all"
                   >
-                    <span>View Role & Apply</span>
+                    <span>Apply with Google</span>
                     <ArrowRight className="w-3.5 h-3.5 text-[#F4BC43]" />
                   </Link>
                 </div>
