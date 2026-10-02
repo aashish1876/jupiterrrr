@@ -1,0 +1,148 @@
+{
+  "opportunities": [
+    {
+      "title": "Lead AI Security Officer",
+      "department": "Cybersecurity & Data Protection",
+      "location": "Wilmington, DE",
+      "employmentType": "Full-time",
+      "experienceLevel": "Mid-Level",
+      "description": "Overseeing enterprise AI defense.",
+      "responsibilities": [
+        "Audit AI pipelines"
+      ],
+      "requirements": [
+        "CISSP"
+      ],
+      "skills": [
+        "AI Security",
+        "Governance"
+      ],
+      "deadline": "2026-12-31",
+      "status": "OPEN",
+      "createdBy": "aashish2008.15@gmail.com",
+      "id": "opp_1790955796356_a3d95b",
+      "createdAt": "2026-10-02T15:43:16.356Z",
+      "updatedAt": "2026-10-02T15:43:37.860Z"
+    },
+    {
+      "id": "opp_sec_01",
+      "title": "Senior Cybersecurity & AI Security Architect",
+      "department": "Cybersecurity & Data Protection",
+      "location": "Wilmington, DE / Hybrid",
+      "employmentType": "Full-time",
+      "experienceLevel": "Senior",
+      "description": "Lead the security architecture and defensive engineering for mission-critical enterprise systems, AI model isolation environments, and zero-trust data protection frameworks.",
+      "responsibilities": [
+        "Design and audit enterprise zero-trust security architectures across hybrid cloud and on-premise environments.",
+        "Implement AI security controls for prompt injection mitigation, model parameter isolation, and API gateway hardening.",
+        "Lead comprehensive risk, vulnerability, and cryptographic assessments against ISO 27001 and SOC 2 Type II benchmarks.",
+        "Collaborate with enterprise clients to architect ransomware resilience, data privacy, and sovereign backup strategies."
+      ],
+      "requirements": [
+        "7+ years of experience in enterprise cybersecurity architecture, cloud security, and threat modeling.",
+        "Deep expertise with zero-trust architectures, HSM key management, and cryptographic standards (AES-256, TLS 1.3).",
+        "Demonstrated experience with AI model security, API authorization gateways, and identity federation.",
+        "Relevant certifications (CISSP, CISM, or CCSP) or equivalent demonstrable production engineering experience."
+      ],
+      "skills": [
+        "Cybersecurity",
+        "AI Security",
+        "Zero-Trust",
+        "Cloud Security",
+        "Risk Assessment",
+        "SOC 2 / ISO 27001"
+      ],
+      "deadline": "2026-11-30",
+      "status": "OPEN",
+      "createdBy": "system@jupitergenx.ai",
+      "createdAt": "2026-10-02T15:42:58.221Z",
+      "updatedAt": "2026-10-02T15:42:58.221Z"
+    },
+    {
+      "id": "opp_ai_02",
+      "title": "Enterprise AI & Automation Solutions Engineer",
+      "department": "AI & Automation",
+      "location": "Remote / US",
+      "employmentType": "Full-time",
+      "experienceLevel": "Senior / Lead",
+      "description": "Architect, implement, and integrate production-grade enterprise generative AI workflows, intelligent automation systems, and agentic assistants for Fortune 1000 organizations.",
+      "responsibilities": [
+        "Design scalable multi-agent systems and retrieval-augmented generation (RAG) pipelines for complex enterprise knowledge bases.",
+        "Build robust API integrations connecting AI models with legacy ERP, CRM, and cloud data platform systems.",
+        "Establish governance frameworks, audit logging, and accuracy verification benchmarks for deployed AI workloads.",
+        "Partner directly with technical leadership to translate high-level business goals into resilient software pipelines."
+      ],
+      "requirements": [
+        "5+ years of software engineering and systems integration experience with at least 2+ years deploying enterprise AI.",
+        "Proficiency in TypeScript, Python, vector databases, and modern LLM orchestration frameworks.",
+        "Strong background in distributed systems, asynchronous event architectures, and containerized deployment.",
+        "BS or MS in Computer Science, Systems Engineering, or equivalent practical track record."
+      ],
+      "skills": [
+        "Generative AI",
+        "Agentic Systems",
+        "Python / TypeScript",
+        "Workflow Automation",
+        "RAG Architecture"
+      ],
+      "deadline": "2026-11-15",
+      "status": "OPEN",
+      "createdBy": "system@jupitergenx.ai",
+      "createdAt": "2026-10-02T15:42:58.221Z",
+      "updatedAt": "2026-10-02T15:42:58.221Z"
+    },
+    {
+      "id": "opp_cloud_03",
+      "title": "Cloud & Infrastructure Modernization Specialist",
+      "department": "Cloud & Infrastructure",
+      "location": "Wilmington, DE / Remote",
+      "employmentType": "Full-time",
+      "experienceLevel": "Mid-Level / Senior",
+      "description": "Design and deploy resilient, high-availability hybrid cloud infrastructure and scalable compute backbones tailored for data platforms and high-throughput enterprise workloads.",
+      "responsibilities": [
+        "Architect resilient multi-region infrastructure using infrastructure-as-code principles.",
+        "Optimize compute, network, and storage tier latency and capacity for mission-critical client deployments.",
+        "Implement automated disaster recovery, continuous backup, and immutable storage topologies.",
+        "Monitor and tune production infrastructure metrics to achieve 99.999% availability standards."
+      ],
+      "requirements": [
+        "4+ years managing production enterprise cloud environments (GCP, AWS, or Azure).",
+        "Extensive hands-on experience with Terraform, Kubernetes, Linux systems internals, and network security.",
+        "Proven expertise in database replication, backup verification, and high-availability design.",
+        "Strong problem-solving acumen and rigorous approach to operational resilience."
+      ],
+      "skills": [
+        "Cloud Architecture",
+        "Kubernetes",
+        "Terraform",
+        "Hybrid Cloud",
+        "Disaster Recovery"
+      ],
+      "deadline": "2026-12-15",
+      "status": "OPEN",
+      "createdBy": "system@jupitergenx.ai",
+      "createdAt": "2026-10-02T15:42:58.221Z",
+      "updatedAt": "2026-10-02T15:42:58.221Z"
+    }
+  ],
+  "applications": [
+    {
+      "careerId": "opp_1790955796356_a3d95b",
+      "careerTitle": "Lead AI Security Officer",
+      "applicantUserId": "anon_726168756c40656d",
+      "applicantName": "Rahul Kumar",
+      "applicantEmail": "rahul@email.com",
+      "phone": "+1-555-123-4567",
+      "resume": "Senior Security Engineer with 8 years in threat analysis.",
+      "coverLetter": "Excited to join JupiterGenX AI.",
+      "linkedin": "",
+      "portfolio": "",
+      "id": "app_1790955799556_39ba87",
+      "status": "UNDER_REVIEW",
+      "submittedAt": "2026-10-02T15:43:19.556Z",
+      "updatedAt": "2026-10-02T15:43:28.906Z",
+      "reviewedAt": "2026-10-02T15:43:28.906Z",
+      "reviewedBy": "aashish2008.15@gmail.com"
+    }
+  ]
+}

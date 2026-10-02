@@ -15,6 +15,8 @@ import { ItSolutionsPage } from './pages/ItSolutionsPage';
 import { SoftwareSolutionsPage } from './pages/SoftwareSolutionsPage';
 import { InsightsPage } from './pages/InsightsPage';
 import { AboutPage } from './pages/AboutPage';
+import { CareersPage } from './pages/CareersPage';
+import { CareersAdminPage } from './pages/CareersAdminPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPage } from './pages/PrivacyPage';
 import { TermsPage } from './pages/TermsPage';
@@ -42,6 +44,8 @@ export default function App() {
             <Route path="/software-digital-solutions" element={<SoftwareSolutionsPage />} />
             <Route path="/insights" element={<InsightsPage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/careers" element={<CareersPage />} />
+            <Route path="/careers/admin" element={<CareersAdminPage />} />
             <Route path="/contact" element={<ContactPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/terms" element={<TermsPage />} />

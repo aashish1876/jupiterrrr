@@ -6,6 +6,7 @@ import { ResponsibleAiSection } from '../components/ResponsibleAiSection';
 import { ApproachSection } from '../components/ApproachSection';
 import { IndustriesSection } from '../components/IndustriesSection';
 import { WhySection } from '../components/WhySection';
+import { CareersSection } from '../components/CareersSection';
 import { CtaSection } from '../components/CtaSection';
 
 export const HomePage: React.FC = () => {
@@ -32,7 +33,10 @@ export const HomePage: React.FC = () => {
       {/* 07: Why JupiterGenX AI */}
       <WhySection />
 
-      {/* 08: Institutional Call to Action */}
+      {/* 08: Careers Section */}
+      <CareersSection />
+
+      {/* 09: Institutional Call to Action */}
       <CtaSection />
     </div>
   );
