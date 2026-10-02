@@ -77,14 +77,18 @@ export const CareersAdminPage: React.FC = () => {
   const renderGoogleAdminButton = () => {
     const google = (window as any).google;
     if (googleAdminBtnRef.current && google?.accounts?.id && googleClientId) {
-      googleAdminBtnRef.current.innerHTML = '';
-      google.accounts.id.renderButton(googleAdminBtnRef.current, {
-        theme: 'filled_blue',
-        size: 'large',
-        width: 320,
-        text: 'signin_with',
-        shape: 'rectangular',
-      });
+      try {
+        googleAdminBtnRef.current.innerHTML = '';
+        google.accounts.id.renderButton(googleAdminBtnRef.current, {
+          theme: 'filled_blue',
+          size: 'large',
+          width: 320,
+          text: 'signin_with',
+          shape: 'rectangular',
+        });
+      } catch (err) {
+        console.error('[GIS Admin] renderButton error:', err);
+      }
     }
   };
 

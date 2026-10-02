@@ -94,6 +94,7 @@ export function verifySessionToken(token: string): AuthUser | null {
 
 /**
  * Verifies a Google ID token from Google Identity Services.
+ * Retrieves verified email and profile for candidate and admin authentication.
  */
 export async function verifyGoogleIdToken(idToken: string): Promise<{
   email: string;
@@ -102,40 +103,54 @@ export async function verifyGoogleIdToken(idToken: string): Promise<{
   picture?: string;
   email_verified: boolean;
 } | null> {
-  try {
-    // If GOOGLE_CLIENT_ID is configured, verify with audience
-    if (GOOGLE_CLIENT_ID) {
+  if (!idToken || typeof idToken !== 'string') return null;
+
+  // 1. Try googleClient.verifyIdToken with audience if configured
+  if (GOOGLE_CLIENT_ID) {
+    try {
       const ticket = await googleClient.verifyIdToken({
         idToken,
         audience: GOOGLE_CLIENT_ID,
       });
       const payload = ticket.getPayload();
-      if (!payload || !payload.email) return null;
-      return {
-        email: payload.email,
-        name: payload.name || payload.email.split('@')[0],
-        sub: payload.sub,
-        picture: payload.picture,
-        email_verified: Boolean(payload.email_verified),
-      };
-    } else {
-      // Fallback: Verify token directly against Google's public tokeninfo endpoint
-      const response = await fetch(
-        `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
-      );
-      if (!response.ok) return null;
-      const data = await response.json();
-      if (!data.email) return null;
-      return {
-        email: data.email,
-        name: data.name || data.email.split('@')[0],
-        sub: data.sub,
-        picture: data.picture,
-        email_verified: data.email_verified === 'true' || data.email_verified === true,
-      };
+      if (payload && payload.email) {
+        return {
+          email: payload.email.toLowerCase().trim(),
+          name: payload.name || payload.email.split('@')[0],
+          sub: payload.sub,
+          picture: payload.picture,
+          email_verified: Boolean(payload.email_verified),
+        };
+      }
+    } catch (clientErr) {
+      console.warn('[Auth] Primary OAuth2Client.verifyIdToken failed, attempting tokeninfo fallback:', clientErr);
     }
+  }
+
+  // 2. Fallback: Verify token directly against Google's authoritative tokeninfo endpoint
+  try {
+    const response = await fetch(
+      `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`
+    );
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error('[Auth] Google tokeninfo endpoint rejected token:', errText);
+      return null;
+    }
+    const data = await response.json();
+    if (!data.email) return null;
+
+    const emailVerified = data.email_verified === 'true' || data.email_verified === true;
+
+    return {
+      email: data.email.toLowerCase().trim(),
+      name: data.name || data.email.split('@')[0],
+      sub: data.sub || data.user_id || 'unknown',
+      picture: data.picture,
+      email_verified: emailVerified,
+    };
   } catch (err) {
-    console.error('[Auth] Failed to verify Google ID token:', err);
+    console.error('[Auth] Failed to verify Google ID token via tokeninfo:', err);
     return null;
   }
 }

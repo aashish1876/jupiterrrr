@@ -128,37 +128,49 @@ export const CareersPage: React.FC = () => {
 
     // Render Apply Modal Google Button
     if (googleApplyBtnRef.current) {
-      googleApplyBtnRef.current.innerHTML = '';
-      google.accounts.id.renderButton(googleApplyBtnRef.current, {
-        theme: 'filled_blue',
-        size: 'large',
-        width: 320,
-        text: 'continue_with',
-        shape: 'rectangular',
-      });
+      try {
+        googleApplyBtnRef.current.innerHTML = '';
+        google.accounts.id.renderButton(googleApplyBtnRef.current, {
+          theme: 'filled_blue',
+          size: 'large',
+          width: 320,
+          text: 'continue_with',
+          shape: 'rectangular',
+        });
+      } catch (err) {
+        console.error('[GIS] Render apply button error:', err);
+      }
     }
 
     // Render Track Applications Google Button
     if (googleTrackBtnRef.current) {
-      googleTrackBtnRef.current.innerHTML = '';
-      google.accounts.id.renderButton(googleTrackBtnRef.current, {
-        theme: 'filled_blue',
-        size: 'large',
-        width: 320,
-        text: 'signin_with',
-        shape: 'rectangular',
-      });
+      try {
+        googleTrackBtnRef.current.innerHTML = '';
+        google.accounts.id.renderButton(googleTrackBtnRef.current, {
+          theme: 'filled_blue',
+          size: 'large',
+          width: 320,
+          text: 'signin_with',
+          shape: 'rectangular',
+        });
+      } catch (err) {
+        console.error('[GIS] Render track button error:', err);
+      }
     }
 
     // Render Top Banner Google Button
     if (googleBannerBtnRef.current) {
-      googleBannerBtnRef.current.innerHTML = '';
-      google.accounts.id.renderButton(googleBannerBtnRef.current, {
-        theme: 'outline',
-        size: 'medium',
-        text: 'signin_with',
-        shape: 'pill',
-      });
+      try {
+        googleBannerBtnRef.current.innerHTML = '';
+        google.accounts.id.renderButton(googleBannerBtnRef.current, {
+          theme: 'outline',
+          size: 'medium',
+          text: 'signin_with',
+          shape: 'pill',
+        });
+      } catch (err) {
+        console.error('[GIS] Render banner button error:', err);
+      }
     }
   };
 
