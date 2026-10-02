@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams, useNavigate } from 'react-router-dom';
 import {
   Briefcase,
   MapPin,
@@ -61,6 +61,7 @@ const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' })
 
 export const CareersPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // Tab: 'opportunities' | 'my-applications'
   const [activeTab, setActiveTab] = useState<'opportunities' | 'my-applications'>('opportunities');
@@ -80,10 +81,10 @@ export const CareersPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(false);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
 
-  // Quick Google Email Verification fallback (for iframe/sandbox restrictions)
-  const [quickGoogleEmail, setQuickGoogleEmail] = useState('');
-  const [quickGoogleName, setQuickGoogleName] = useState('');
-  const [quickAuthLoading, setQuickAuthLoading] = useState(false);
+  // Button DOM container refs
+  const googleApplyBtnRef = useRef<HTMLDivElement | null>(null);
+  const googleTrackBtnRef = useRef<HTMLDivElement | null>(null);
+  const googleBannerBtnRef = useRef<HTMLDivElement | null>(null);
 
   // Application Modal State
   const [applyingToOpp, setApplyingToOpp] = useState<CareerOpportunity | null>(null);
@@ -121,8 +122,49 @@ export const CareersPage: React.FC = () => {
     }
   };
 
+  const renderGoogleButtons = () => {
+    const google = (window as any).google;
+    if (!google?.accounts?.id || !googleClientId) return;
+
+    // Render Apply Modal Google Button
+    if (googleApplyBtnRef.current) {
+      googleApplyBtnRef.current.innerHTML = '';
+      google.accounts.id.renderButton(googleApplyBtnRef.current, {
+        theme: 'filled_blue',
+        size: 'large',
+        width: 320,
+        text: 'continue_with',
+        shape: 'rectangular',
+      });
+    }
+
+    // Render Track Applications Google Button
+    if (googleTrackBtnRef.current) {
+      googleTrackBtnRef.current.innerHTML = '';
+      google.accounts.id.renderButton(googleTrackBtnRef.current, {
+        theme: 'filled_blue',
+        size: 'large',
+        width: 320,
+        text: 'signin_with',
+        shape: 'rectangular',
+      });
+    }
+
+    // Render Top Banner Google Button
+    if (googleBannerBtnRef.current) {
+      googleBannerBtnRef.current.innerHTML = '';
+      google.accounts.id.renderButton(googleBannerBtnRef.current, {
+        theme: 'outline',
+        size: 'medium',
+        text: 'signin_with',
+        shape: 'pill',
+      });
+    }
+  };
+
   // Google Identity Services Setup
   useEffect(() => {
+    let intervalId: any;
     const initGoogleIdentity = () => {
       const google = (window as any).google;
       if (!google?.accounts?.id || !googleClientId) return;
@@ -141,6 +183,15 @@ export const CareersPage: React.FC = () => {
 
               if (res.success && res.user) {
                 const loggedInUser = res.user;
+
+                // CRITICAL REQUIREMENT: "if admin matches open admin portal"
+                if (loggedInUser.isAdmin) {
+                  setCurrentUser(loggedInUser);
+                  navigate('/careers/admin');
+                  return;
+                }
+
+                // Normal Candidate Flow
                 setCurrentUser(loggedInUser);
                 setAppForm((prev) => ({
                   ...prev,
@@ -155,53 +206,16 @@ export const CareersPage: React.FC = () => {
           },
         });
 
-        // 1. Render Google button inside Apply Modal if open
-        const applyBtnContainer = document.getElementById('google-apply-btn-container');
-        if (applyBtnContainer) {
-          applyBtnContainer.innerHTML = '';
-          google.accounts.id.renderButton(applyBtnContainer, {
-            theme: 'filled_blue',
-            size: 'large',
-            width: 320,
-            text: 'continue_with',
-            shape: 'rectangular',
-          });
-        }
-
-        // 2. Render Google button inside Track Applications Tab
-        const trackBtnContainer = document.getElementById('google-track-btn-container');
-        if (trackBtnContainer) {
-          trackBtnContainer.innerHTML = '';
-          google.accounts.id.renderButton(trackBtnContainer, {
-            theme: 'filled_blue',
-            size: 'large',
-            width: 320,
-            text: 'signin_with',
-            shape: 'rectangular',
-          });
-        }
-
-        // 3. Render Google button inside Top Banner
-        const bannerBtnContainer = document.getElementById('google-banner-btn-container');
-        if (bannerBtnContainer) {
-          bannerBtnContainer.innerHTML = '';
-          google.accounts.id.renderButton(bannerBtnContainer, {
-            theme: 'outline',
-            size: 'medium',
-            text: 'signin_with',
-            shape: 'pill',
-          });
-        }
+        renderGoogleButtons();
+        clearInterval(intervalId);
       } catch (err) {
         console.error('[Google Identity Services] Initialization error:', err);
       }
     };
 
     initGoogleIdentity();
-
-    // Re-check when modal opens or active tab switches
-    const timer = setTimeout(initGoogleIdentity, 300);
-    return () => clearTimeout(timer);
+    intervalId = setInterval(initGoogleIdentity, 300);
+    return () => clearInterval(intervalId);
   }, [googleClientId, applyingToOpp, activeTab, currentUser]);
 
   const loadOpportunities = async () => {
@@ -261,35 +275,6 @@ export const CareersPage: React.FC = () => {
     } finally {
       setMyAppsLoading(false);
     }
-  };
-
-  // Google Sign-In with verified Google Email
-  const handleGoogleQuickAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!quickGoogleEmail.trim()) return;
-
-    setQuickAuthLoading(true);
-    setGoogleAuthError(null);
-
-    const email = quickGoogleEmail.trim().toLowerCase();
-    const name = quickGoogleName.trim() || email.split('@')[0];
-
-    const res = await careersApi.loginWithDevAccount(email, name);
-    setQuickAuthLoading(false);
-
-    if (!res.success || !res.user) {
-      setGoogleAuthError(res.error || 'Google authentication failed.');
-      return;
-    }
-
-    const authUser = res.user;
-    setCurrentUser(authUser);
-    setAppForm((prev) => ({
-      ...prev,
-      applicantEmail: authUser.email,
-      applicantName: authUser.name || prev.applicantName,
-    }));
-    loadMyApplications();
   };
 
   const handleLogout = async () => {
@@ -465,7 +450,14 @@ export const CareersPage: React.FC = () => {
                     )}
                   </div>
                   <div className="text-left">
-                    <div className="font-semibold text-white truncate max-w-[140px]">{currentUser.name}</div>
+                    <div className="font-semibold text-white truncate max-w-[140px] flex items-center gap-1.5">
+                      <span>{currentUser.name}</span>
+                      {currentUser.isAdmin && (
+                        <span className="px-1.5 py-0.2 rounded text-[9px] bg-[#F4BC43]/20 text-[#F4BC43] font-bold">
+                          Admin
+                        </span>
+                      )}
+                    </div>
                     <div className="text-[10px] text-[#7E8C9F] truncate max-w-[140px]">{currentUser.email}</div>
                   </div>
                   <button
@@ -478,30 +470,34 @@ export const CareersPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div id="google-banner-btn-container" className="empty:hidden" />
-                  <button
-                    onClick={() => {
-                      if (opportunities.length > 0) {
-                        handleOpenApplyModal(opportunities[0]);
-                      } else {
-                        setActiveTab('my-applications');
-                      }
+                  <div
+                    ref={(el) => {
+                      googleBannerBtnRef.current = el;
+                      renderGoogleButtons();
                     }}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-xs font-semibold text-white transition-all shadow-sm"
-                  >
-                    <GoogleIcon className="w-3.5 h-3.5" />
-                    <span>Candidate Sign In</span>
-                  </button>
+                    id="google-banner-btn-container"
+                    className="empty:hidden"
+                  />
                 </div>
               )}
 
-              <Link
-                to="/careers/admin"
-                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-[#B7C0CC] hover:text-white transition-all shadow-sm"
-              >
-                <Lock className="w-3.5 h-3.5 text-[#F4BC43]" />
-                <span>Careers Admin</span>
-              </Link>
+              {currentUser?.isAdmin ? (
+                <Link
+                  to="/careers/admin"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#F4BC43] hover:bg-[#FFD76A] text-[#020B18] font-bold text-xs tracking-wide transition-all shadow-md shadow-[#F4BC43]/20"
+                >
+                  <Shield className="w-3.5 h-3.5" />
+                  <span>Open Admin Portal</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/careers/admin"
+                  className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-[#B7C0CC] hover:text-white transition-all shadow-sm"
+                >
+                  <Lock className="w-3.5 h-3.5 text-[#F4BC43]" />
+                  <span>Careers Admin</span>
+                </Link>
+              )}
             </div>
           </div>
 
@@ -700,7 +696,7 @@ export const CareersPage: React.FC = () => {
                               className="px-6 py-3 rounded-xl bg-[#F4BC43] hover:bg-[#FFD76A] text-[#020B18] font-bold text-xs sm:text-sm tracking-wide transition-all shadow-md shadow-[#F4BC43]/20 flex items-center gap-2 group/apply shrink-0"
                             >
                               <GoogleIcon className="w-4 h-4 shrink-0" />
-                              <span>Apply Now</span>
+                              <span>Apply with Google</span>
                               <ArrowRight className="w-4 h-4 transition-transform group-hover/apply:translate-x-0.5" />
                             </button>
 
@@ -802,7 +798,7 @@ export const CareersPage: React.FC = () => {
                           {/* Bottom Apply Action */}
                           <div className="pt-4 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                             <p className="text-xs text-[#7E8C9F]">
-                              Candidate submissions are verified via Google authentication and ingested directly into our talent system.
+                              Candidate submissions are verified via direct Google authentication and ingested directly into our talent system.
                             </p>
                             <button
                               onClick={() => handleOpenApplyModal(opp)}
@@ -846,11 +842,25 @@ export const CareersPage: React.FC = () => {
                         <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                           Google Verified
                         </span>
+                        {currentUser.isAdmin && (
+                          <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] bg-[#F4BC43]/20 text-[#F4BC43] border border-[#F4BC43]/40 font-bold">
+                            Admin
+                          </span>
+                        )}
                       </div>
                       <div className="text-[#7E8C9F]">{currentUser.email}</div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {currentUser.isAdmin && (
+                      <Link
+                        to="/careers/admin"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F4BC43] hover:bg-[#FFD76A] text-xs text-[#020B18] font-bold transition-colors"
+                      >
+                        <Shield className="w-3.5 h-3.5" />
+                        <span>Admin Dashboard</span>
+                      </Link>
+                    )}
                     <button
                       onClick={loadMyApplications}
                       className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-[#7E8C9F] hover:text-white transition-colors"
@@ -966,10 +976,10 @@ export const CareersPage: React.FC = () => {
                     <GoogleIcon className="w-8 h-8" />
                   </div>
                   <h3 className="text-xl sm:text-2xl font-bold text-white font-sans">
-                    Sign in with Google to Track Your Applications
+                    Sign in directly with Google to Track Your Applications
                   </h3>
                   <p className="text-xs sm:text-sm text-[#7E8C9F] max-w-md mx-auto leading-relaxed">
-                    Connect your Google account to view real-time status updates, review notifications, and interviewer assignments.
+                    Connect your Google account to view real-time status updates, review notifications, and interview feedback.
                   </p>
                 </div>
 
@@ -981,48 +991,20 @@ export const CareersPage: React.FC = () => {
                 )}
 
                 {/* Google Identity Services Container */}
-                <div className="flex flex-col items-center justify-center gap-3 pt-2">
-                  <div id="google-track-btn-container" className="flex justify-center" />
+                <div className="flex flex-col items-center justify-center gap-3 pt-3">
+                  <div
+                    ref={(el) => {
+                      googleTrackBtnRef.current = el;
+                      renderGoogleButtons();
+                    }}
+                    id="google-track-btn-container"
+                    className="min-h-[44px] flex items-center justify-center"
+                  />
                 </div>
 
-                {/* Quick Google Account Sign-In Fallback */}
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10" />
-                  </div>
-                  <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
-                    <span className="bg-[#061426] px-3 text-[#7E8C9F]">Or enter your Google Account email</span>
-                  </div>
-                </div>
-
-                <form onSubmit={handleGoogleQuickAuth} className="space-y-4 max-w-md mx-auto">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#B7C0CC] mb-1.5">
-                      Google Email Address
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={quickGoogleEmail}
-                      onChange={(e) => setQuickGoogleEmail(e.target.value)}
-                      placeholder="e.g. candidate@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-[#020B18] border border-white/15 text-white text-xs sm:text-sm focus:outline-none focus:border-[#18BFF2] transition-colors"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={quickAuthLoading}
-                    className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 text-white font-bold text-xs sm:text-sm transition-all flex items-center justify-center gap-2"
-                  >
-                    {quickAuthLoading ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <GoogleIcon className="w-4 h-4" />
-                    )}
-                    <span>Continue with Google Account</span>
-                  </button>
-                </form>
+                <p className="text-[11px] text-[#7E8C9F] text-center max-w-sm mx-auto">
+                  Only direct Google authentication is accepted. If your Google account is an authorized administrator, the Admin Portal will open automatically.
+                </p>
               </div>
             )}
           </div>
@@ -1030,7 +1012,7 @@ export const CareersPage: React.FC = () => {
       </div>
 
       {/* ========================================================= */}
-      {/* APPLICATION MODAL WITH MANDATORY GOOGLE SIGN-IN           */}
+      {/* APPLICATION MODAL WITH DIRECT GOOGLE SIGN-IN              */}
       {/* ========================================================= */}
       {applyingToOpp && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
@@ -1064,82 +1046,40 @@ export const CareersPage: React.FC = () => {
               </div>
             )}
 
-            {/* STEP 1: If not signed in, ASK FOR GOOGLE SIGN-IN / SIGN-UP */}
+            {/* STEP 1: If not signed in, DIRECT GOOGLE SIGN-IN (NO MANUAL FORM) */}
             {!currentUser ? (
-              <div className="py-6 px-4 sm:px-6 rounded-2xl bg-[#020B18]/70 border border-white/10 text-center space-y-6">
+              <div className="py-8 px-4 sm:px-6 rounded-2xl bg-[#020B18]/70 border border-white/10 text-center space-y-6">
                 <div className="w-16 h-16 rounded-2xl bg-white/[0.04] border border-white/10 flex items-center justify-center mx-auto shadow-inner">
                   <GoogleIcon className="w-9 h-9" />
                 </div>
 
                 <div className="space-y-2 max-w-md mx-auto">
                   <h4 className="text-lg sm:text-xl font-bold text-white font-sans">
-                    Google Sign-In Required to Apply
+                    Sign in with Google to Apply
                   </h4>
                   <p className="text-xs sm:text-sm text-[#B7C0CC] leading-relaxed">
-                    To apply for <strong className="text-white">{applyingToOpp.title}</strong>, please sign in or register with your Google account. This verifies your candidate identity and links your application for live status tracking.
+                    To apply for <strong className="text-white">{applyingToOpp.title}</strong>, please sign in directly with your Google account. This verifies your identity and connects your application for live status tracking.
                   </p>
                 </div>
 
                 {/* Google Identity Services Container for Modal */}
-                <div className="flex flex-col items-center justify-center gap-3">
-                  <div id="google-apply-btn-container" className="flex justify-center" />
+                <div className="flex flex-col items-center justify-center gap-3 pt-2">
+                  <div
+                    ref={(el) => {
+                      googleApplyBtnRef.current = el;
+                      renderGoogleButtons();
+                    }}
+                    id="google-apply-btn-container"
+                    className="min-h-[44px] flex items-center justify-center"
+                  />
                 </div>
 
-                {/* Divider */}
-                <div className="relative py-2">
-                  <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-white/10" />
-                  </div>
-                  <div className="relative flex justify-center text-[10px] uppercase tracking-wider">
-                    <span className="bg-[#020B18] px-3 text-[#7E8C9F]">Or enter your Google Email</span>
-                  </div>
+                <div className="text-[11px] text-[#7E8C9F] max-w-sm mx-auto space-y-1">
+                  <p>Direct authentication via Google Identity Services.</p>
+                  <p className="text-[#F4BC43]">
+                    If your account is in the administrator allowlist, the Careers Admin Portal will open directly.
+                  </p>
                 </div>
-
-                {/* Quick Google Email Form */}
-                <form onSubmit={handleGoogleQuickAuth} className="space-y-3 max-w-sm mx-auto text-left">
-                  <div>
-                    <label className="block text-[11px] font-semibold text-[#B7C0CC] mb-1">
-                      Your Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={quickGoogleName}
-                      onChange={(e) => setQuickGoogleName(e.target.value)}
-                      placeholder="e.g. Alex Mercer"
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-[#061426] border border-white/15 text-white text-xs focus:outline-none focus:border-[#F4BC43] transition-colors"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-semibold text-[#B7C0CC] mb-1">
-                      Google Email Address *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={quickGoogleEmail}
-                      onChange={(e) => setQuickGoogleEmail(e.target.value)}
-                      placeholder="e.g. candidate@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-[#061426] border border-white/15 text-white text-xs focus:outline-none focus:border-[#F4BC43] transition-colors"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    disabled={quickAuthLoading}
-                    className="w-full py-2.5 rounded-lg bg-[#F4BC43] hover:bg-[#FFD76A] text-[#020B18] font-bold text-xs tracking-wide transition-all shadow-md shadow-[#F4BC43]/20 flex items-center justify-center gap-2"
-                  >
-                    {quickAuthLoading ? (
-                      <div className="w-3.5 h-3.5 border-2 border-[#020B18] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <GoogleIcon className="w-3.5 h-3.5" />
-                    )}
-                    <span>Continue with Google Account</span>
-                  </button>
-                </form>
-
-                <p className="text-[11px] text-[#7E8C9F] max-w-sm mx-auto">
-                  By continuing, you agree to our candidate privacy standards and enable live application status updates.
-                </p>
               </div>
             ) : appSuccessMessage ? (
               /* Success Confirmation View */
@@ -1168,7 +1108,7 @@ export const CareersPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              /* STEP 2: Candidate is Signed In with Google -> Complete Application */
+              /* STEP 2: Candidate is Signed In with Google -> Complete Application Form */
               <form onSubmit={handleApplicationSubmit} className="space-y-5 text-xs">
                 {/* Verified Google Account Banner */}
                 <div className="p-4 rounded-xl bg-[#18BFF2]/10 border border-[#18BFF2]/25 flex items-center justify-between gap-3">
@@ -1186,17 +1126,33 @@ export const CareersPage: React.FC = () => {
                         <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] bg-emerald-500/20 text-emerald-300 font-semibold border border-emerald-500/30">
                           Google Verified
                         </span>
+                        {currentUser.isAdmin && (
+                          <span className="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] bg-[#F4BC43]/20 text-[#F4BC43] font-bold border border-[#F4BC43]/40">
+                            Admin Account
+                          </span>
+                        )}
                       </div>
                       <div className="text-[11px] text-[#7E8C9F]">{currentUser.email}</div>
                     </div>
                   </div>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="text-[11px] text-[#F4BC43] hover:underline shrink-0"
-                  >
-                    Switch Account
-                  </button>
+                  <div className="flex items-center gap-2">
+                    {currentUser.isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => navigate('/careers/admin')}
+                        className="text-[11px] text-[#F4BC43] font-bold hover:underline shrink-0"
+                      >
+                        Admin Portal &rarr;
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleLogout}
+                      className="text-[11px] text-[#7E8C9F] hover:text-white underline shrink-0"
+                    >
+                      Switch Account
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

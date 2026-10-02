@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Shield,
@@ -37,10 +37,7 @@ export const CareersAdminPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [googleClientId, setGoogleClientId] = useState<string>('');
-
-  // Dev Login form (for testing without Google client ID configured)
-  const [devEmail, setDevEmail] = useState('');
-  const [devLoginLoading, setDevLoginLoading] = useState(false);
+  const googleAdminBtnRef = useRef<HTMLDivElement | null>(null);
 
   // Dashboard Data State
   const [opportunities, setOpportunities] = useState<CareerOpportunity[]>([]);
@@ -77,53 +74,76 @@ export const CareersAdminPage: React.FC = () => {
     checkAuth();
   }, []);
 
-  // Initialize Google Identity Services if client ID is configured
-  useEffect(() => {
-    if (googleClientId && (window as any).google?.accounts?.id) {
-      try {
-        (window as any).google.accounts.id.initialize({
-          client_id: googleClientId,
-          callback: async (response: any) => {
-            if (response?.credential) {
-              setAuthLoading(true);
-              const res = await careersApi.loginWithGoogleToken(response.credential);
-              setAuthLoading(false);
-              if (!res.success || !res.user) {
-                setAuthError(res.error || 'Google authentication failed.');
-                return;
-              }
-              if (!res.user.isAdmin) {
-                setAuthError('Your account is not authorized to access the Careers Admin Dashboard.');
-                setCurrentUser(res.user);
-                return;
-              }
-              setCurrentUser(res.user);
-              loadOpportunities();
-            }
-          },
-        });
-
-        const btnContainer = document.getElementById('google-admin-signin-btn');
-        if (btnContainer) {
-          (window as any).google.accounts.id.renderButton(btnContainer, {
-            theme: 'filled_blue',
-            size: 'large',
-            width: 380,
-            text: 'signin_with',
-          });
-        }
-      } catch (err) {
-        console.error('GSI Init Error', err);
-      }
+  const renderGoogleAdminButton = () => {
+    const google = (window as any).google;
+    if (googleAdminBtnRef.current && google?.accounts?.id && googleClientId) {
+      googleAdminBtnRef.current.innerHTML = '';
+      google.accounts.id.renderButton(googleAdminBtnRef.current, {
+        theme: 'filled_blue',
+        size: 'large',
+        width: 320,
+        text: 'signin_with',
+        shape: 'rectangular',
+      });
     }
-  }, [googleClientId]);
+  };
+
+  // Initialize Google Identity Services
+  useEffect(() => {
+    let intervalId: any;
+    const initGsi = () => {
+      const google = (window as any).google;
+      if (google?.accounts?.id && googleClientId) {
+        try {
+          google.accounts.id.initialize({
+            client_id: googleClientId,
+            auto_select: false,
+            callback: async (response: any) => {
+              if (response?.credential) {
+                setAuthLoading(true);
+                setAuthError(null);
+                const res = await careersApi.loginWithGoogleToken(response.credential);
+                setAuthLoading(false);
+
+                if (!res.success || !res.user) {
+                  setAuthError(res.error || 'Google authentication failed.');
+                  return;
+                }
+
+                if (!res.user.isAdmin) {
+                  setAuthError('Your account is not authorized to access the Careers Admin Dashboard.');
+                  setCurrentUser(res.user);
+                  return;
+                }
+
+                // Authorized Admin matched! Open admin portal immediately!
+                setCurrentUser(res.user);
+                loadOpportunities();
+              }
+            },
+          });
+
+          renderGoogleAdminButton();
+          clearInterval(intervalId);
+        } catch (err) {
+          console.error('[Google Admin Auth] Init error:', err);
+        }
+      }
+    };
+
+    initGsi();
+    intervalId = setInterval(initGsi, 300);
+    return () => clearInterval(intervalId);
+  }, [googleClientId, authLoading, currentUser]);
 
   const checkAuth = async () => {
     setAuthLoading(true);
     setAuthError(null);
     try {
       const config = await careersApi.getAuthConfig();
-      setGoogleClientId(config.googleClientId);
+      if (config.googleClientId) {
+        setGoogleClientId(config.googleClientId);
+      }
 
       const me = await careersApi.getAuthMe();
       if (me.authenticated && me.user) {
@@ -152,30 +172,6 @@ export const CareersAdminPage: React.FC = () => {
     } finally {
       setDataLoading(false);
     }
-  };
-
-  const handleDevLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!devEmail) return;
-    setDevLoginLoading(true);
-    setAuthError(null);
-
-    const res = await careersApi.loginWithDevAccount(devEmail);
-    setDevLoginLoading(false);
-
-    if (!res.success || !res.user) {
-      setAuthError(res.error || 'Authentication failed.');
-      return;
-    }
-
-    if (!res.user.isAdmin) {
-      setAuthError('Your account is not authorized to access the Careers Admin Dashboard.');
-      setCurrentUser(res.user);
-      return;
-    }
-
-    setCurrentUser(res.user);
-    loadOpportunities();
   };
 
   const handleLogout = async () => {
@@ -447,39 +443,32 @@ export const CareersAdminPage: React.FC = () => {
           )}
 
           {(!currentUser || currentUser.isAdmin === false) && (
-            <div className="space-y-4 pt-2">
-              {/* Google Identity Services Container */}
-              <div id="google-admin-signin-btn" className="flex justify-center empty:hidden" />
+            <div className="space-y-5 pt-2">
+              <div className="p-6 rounded-xl bg-white/[0.03] border border-white/10 text-center space-y-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-semibold text-white">
+                    Sign in with Google
+                  </p>
+                  <p className="text-[11px] text-[#7E8C9F]">
+                    Direct Google authentication with verified administrator role matching
+                  </p>
+                </div>
 
-              {/* Verified Admin Google Account Form */}
-              <div className="space-y-3">
-                <form onSubmit={handleDevLogin} className="space-y-3">
-                  <div>
-                    <label className="block text-xs font-semibold text-[#B7C0CC] mb-1">
-                      Authorized Admin Google Email
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={devEmail}
-                      onChange={(e) => setDevEmail(e.target.value)}
-                      placeholder="e.g. anil.yanamala24@gmail.com"
-                      className="w-full px-3.5 py-2.5 rounded-lg bg-[#020B18] border border-white/15 text-white text-sm focus:outline-none focus:border-[#F4BC43] transition-colors"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    disabled={devLoginLoading}
-                    className="w-full py-3 rounded-lg bg-[#F4BC43] hover:bg-[#FFD76A] text-[#020B18] font-bold text-sm transition-all shadow-md shadow-[#F4BC43]/20 flex items-center justify-center gap-2"
-                  >
-                    {devLoginLoading ? (
-                      <div className="w-4 h-4 border-2 border-[#020B18] border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Shield className="w-4 h-4" />
-                    )}
-                    <span>Verify & Open Admin Dashboard</span>
-                  </button>
-                </form>
+                {/* Google Identity Services Button */}
+                <div className="flex justify-center pt-1">
+                  <div
+                    ref={(el) => {
+                      googleAdminBtnRef.current = el;
+                      renderGoogleAdminButton();
+                    }}
+                    id="google-admin-signin-btn"
+                    className="min-h-[44px] flex items-center justify-center"
+                  />
+                </div>
+
+                <p className="text-[10px] text-[#7E8C9F]">
+                  If your Google account is verified on the admin allowlist, the Careers Admin Portal will open automatically.
+                </p>
               </div>
 
               <div className="text-center pt-2">
