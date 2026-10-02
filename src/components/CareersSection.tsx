@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
   Briefcase,
@@ -11,13 +11,13 @@ import {
   AlertCircle,
   LogOut,
   ChevronRight,
-  ExternalLink,
 } from 'lucide-react';
 import {
   careersApi,
   CareerOpportunity,
   AuthUser,
 } from '../utils/careersApi';
+import { GoogleSignInButton } from './GoogleSignInButton';
 
 export const CareersSection: React.FC = () => {
   const navigate = useNavigate();
@@ -26,12 +26,8 @@ export const CareersSection: React.FC = () => {
 
   // Authentication State
   const [currentUser, setCurrentUser] = useState<AuthUser | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
-  const [googleClientId, setGoogleClientId] = useState<string>('');
   const [adminRedirectNotice, setAdminRedirectNotice] = useState<string | null>(null);
-
-  const googleSectionBtnRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // 1. Fetch opportunities
@@ -41,105 +37,35 @@ export const CareersSection: React.FC = () => {
       .catch(() => {})
       .finally(() => setLoading(false));
 
-    // 2. Fetch current session & auth config
+    // 2. Fetch current session
     checkAuthSession();
   }, []);
 
   const checkAuthSession = async () => {
-    setAuthLoading(true);
     try {
-      const config = await careersApi.getAuthConfig();
-      if (config.googleClientId) {
-        setGoogleClientId(config.googleClientId);
-      }
-
       const me = await careersApi.getAuthMe();
       if (me.authenticated && me.user) {
         setCurrentUser(me.user);
       }
     } catch (err) {
       console.error('[CareersSection] Failed to check auth session:', err);
-    } finally {
-      setAuthLoading(false);
     }
   };
 
-  const renderGoogleButton = () => {
-    const google = (window as any).google;
-    if (googleSectionBtnRef.current && google?.accounts?.id && googleClientId) {
-      try {
-        googleSectionBtnRef.current.innerHTML = '';
-        google.accounts.id.renderButton(googleSectionBtnRef.current, {
-          theme: 'filled_blue',
-          size: 'large',
-          width: 280,
-          text: 'signin_with',
-          shape: 'rectangular',
-        });
-      } catch (err) {
-        console.error('[CareersSection] renderButton error:', err);
-      }
+  const handleLoginSuccess = (verifiedUser: AuthUser) => {
+    setCurrentUser(verifiedUser);
+    setAuthError(null);
+
+    // Admin Authorization Check
+    if (verifiedUser.isAdmin) {
+      setAdminRedirectNotice(
+        `Verified Administrator matched (${verifiedUser.email}). Opening Careers Admin Dashboard...`
+      );
+      setTimeout(() => {
+        navigate('/careers/admin');
+      }, 700);
     }
   };
-
-  // Initialize Google Identity Services
-  useEffect(() => {
-    let intervalId: any;
-
-    const initGsi = () => {
-      const google = (window as any).google;
-      if (google?.accounts?.id && googleClientId) {
-        try {
-          google.accounts.id.initialize({
-            client_id: googleClientId,
-            auto_select: false,
-            callback: async (response: any) => {
-              if (response?.credential) {
-                setAuthLoading(true);
-                setAuthError(null);
-                setAdminRedirectNotice(null);
-
-                const res = await careersApi.loginWithGoogleToken(response.credential);
-                setAuthLoading(false);
-
-                if (!res.success || !res.user) {
-                  setAuthError(res.error || 'Google authentication failed. Please try again.');
-                  return;
-                }
-
-                const verifiedUser = res.user;
-                setCurrentUser(verifiedUser);
-
-                // Admin Authorization Check
-                if (verifiedUser.isAdmin) {
-                  setAdminRedirectNotice(
-                    `Verified Administrator matched (${verifiedUser.email}). Opening Careers Admin Dashboard...`
-                  );
-                  setTimeout(() => {
-                    navigate('/careers/admin');
-                  }, 900);
-                }
-              }
-            },
-          });
-
-          renderGoogleButton();
-          clearInterval(intervalId);
-        } catch (err) {
-          console.error('[CareersSection] Google Identity init error:', err);
-        }
-      }
-    };
-
-    if (!currentUser) {
-      initGsi();
-      intervalId = setInterval(initGsi, 300);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [googleClientId, currentUser]);
 
   const handleLogout = async () => {
     await careersApi.logout();
@@ -266,21 +192,12 @@ export const CareersSection: React.FC = () => {
               </div>
 
               <div className="shrink-0 flex items-center justify-center">
-                {authLoading ? (
-                  <div className="h-10 px-6 rounded-lg bg-white/5 border border-white/10 flex items-center gap-2 text-xs text-[#7E8C9F]">
-                    <div className="w-3.5 h-3.5 border-2 border-[#F4BC43] border-t-transparent rounded-full animate-spin" />
-                    <span>Connecting Google Identity...</span>
-                  </div>
-                ) : (
-                  <div
-                    ref={(el) => {
-                      googleSectionBtnRef.current = el;
-                      renderGoogleButton();
-                    }}
-                    id="google-section-signin-btn"
-                    className="min-h-[44px] flex items-center justify-center"
-                  />
-                )}
+                <GoogleSignInButton
+                  onSuccess={handleLoginSuccess}
+                  onError={(err) => setAuthError(err)}
+                  text="signin_with"
+                  size="large"
+                />
               </div>
             </div>
           )}

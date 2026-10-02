@@ -36,6 +36,7 @@ import {
   CareerApplication,
   AuthUser,
 } from '../utils/careersApi';
+import { GoogleSignInButton } from '../components/GoogleSignInButton';
 
 // Official Google "G" Colored SVG Icon
 const GoogleIcon: React.FC<{ className?: string }> = ({ className = 'w-4 h-4' }) => (
@@ -194,23 +195,7 @@ export const CareersPage: React.FC = () => {
               setAuthLoading(false);
 
               if (res.success && res.user) {
-                const loggedInUser = res.user;
-
-                // CRITICAL REQUIREMENT: "if admin matches open admin portal"
-                if (loggedInUser.isAdmin) {
-                  setCurrentUser(loggedInUser);
-                  navigate('/careers/admin');
-                  return;
-                }
-
-                // Normal Candidate Flow
-                setCurrentUser(loggedInUser);
-                setAppForm((prev) => ({
-                  ...prev,
-                  applicantEmail: loggedInUser.email,
-                  applicantName: loggedInUser.name || prev.applicantName,
-                }));
-                loadMyApplications();
+                handleGoogleLoginSuccess(res.user);
               } else {
                 setGoogleAuthError(res.error || 'Google authentication failed.');
               }
@@ -229,6 +214,23 @@ export const CareersPage: React.FC = () => {
     intervalId = setInterval(initGoogleIdentity, 300);
     return () => clearInterval(intervalId);
   }, [googleClientId, applyingToOpp, activeTab, currentUser]);
+
+  const handleGoogleLoginSuccess = (loggedInUser: AuthUser) => {
+    setGoogleAuthError(null);
+    if (loggedInUser.isAdmin) {
+      setCurrentUser(loggedInUser);
+      navigate('/careers/admin');
+      return;
+    }
+
+    setCurrentUser(loggedInUser);
+    setAppForm((prev) => ({
+      ...prev,
+      applicantEmail: loggedInUser.email,
+      applicantName: loggedInUser.name || prev.applicantName,
+    }));
+    loadMyApplications();
+  };
 
   const loadOpportunities = async () => {
     setLoading(true);
@@ -482,13 +484,12 @@ export const CareersPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
-                  <div
-                    ref={(el) => {
-                      googleBannerBtnRef.current = el;
-                      renderGoogleButtons();
-                    }}
-                    id="google-banner-btn-container"
-                    className="empty:hidden"
+                  <GoogleSignInButton
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={(err) => setGoogleAuthError(err)}
+                    text="signin_with"
+                    size="medium"
+                    theme="white"
                   />
                 </div>
               )}
@@ -1004,13 +1005,11 @@ export const CareersPage: React.FC = () => {
 
                 {/* Google Identity Services Container */}
                 <div className="flex flex-col items-center justify-center gap-3 pt-3">
-                  <div
-                    ref={(el) => {
-                      googleTrackBtnRef.current = el;
-                      renderGoogleButtons();
-                    }}
-                    id="google-track-btn-container"
-                    className="min-h-[44px] flex items-center justify-center"
+                  <GoogleSignInButton
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={(err) => setGoogleAuthError(err)}
+                    text="signin_with"
+                    size="large"
                   />
                 </div>
 
@@ -1076,13 +1075,11 @@ export const CareersPage: React.FC = () => {
 
                 {/* Google Identity Services Container for Modal */}
                 <div className="flex flex-col items-center justify-center gap-3 pt-2">
-                  <div
-                    ref={(el) => {
-                      googleApplyBtnRef.current = el;
-                      renderGoogleButtons();
-                    }}
-                    id="google-apply-btn-container"
-                    className="min-h-[44px] flex items-center justify-center"
+                  <GoogleSignInButton
+                    onSuccess={handleGoogleLoginSuccess}
+                    onError={(err) => setGoogleAuthError(err)}
+                    text="continue_with"
+                    size="large"
                   />
                 </div>
 

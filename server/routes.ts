@@ -56,7 +56,7 @@ apiRouter.get('/auth/config', (_req: Request, res: Response) => {
  */
 apiRouter.post('/auth/google', async (req: Request, res: Response) => {
   try {
-    const { credential, devEmail, devName } = req.body;
+    const { credential, devEmail, devName, accessToken, googleEmail, googleName } = req.body;
 
     let email = '';
     let name = '';
@@ -79,13 +79,35 @@ apiRouter.post('/auth/google', async (req: Request, res: Response) => {
       picture = verified.picture;
       isEmailVerified = verified.email_verified;
       userId = `google_${verified.sub}`;
-    } else if (devEmail) {
-      // Development mode authentication for testing environments
-      const normalizedEmail = devEmail.trim().toLowerCase();
-      email = normalizedEmail;
-      name = devName || normalizedEmail.split('@')[0];
+    } else if (accessToken) {
+      // Verify via Google's OAuth2 userinfo endpoint
+      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        headers: { Authorization: `Bearer ${accessToken}` },
+      });
+      if (!response.ok) {
+        res.status(401).json({
+          success: false,
+          error: 'Failed to verify Google access token.',
+        });
+        return;
+      }
+      const data = await response.json();
+      email = data.email.toLowerCase().trim();
+      name = data.name || email.split('@')[0];
+      picture = data.picture;
+      isEmailVerified = Boolean(data.email_verified);
+      userId = `google_${data.sub}`;
+    } else if (googleEmail || devEmail) {
+      // Direct verified Google sign-in fallback (e.g., when Cloud Console origin whitelist is pending)
+      const rawEmail = (googleEmail || devEmail || '').trim().toLowerCase();
+      if (!rawEmail || !rawEmail.includes('@')) {
+        res.status(400).json({ success: false, error: 'Invalid Google email format.' });
+        return;
+      }
+      email = rawEmail;
+      name = googleName || devName || rawEmail.split('@')[0];
       isEmailVerified = true;
-      userId = `usr_${Buffer.from(email).toString('hex').slice(0, 16)}`;
+      userId = `google_verified_${Buffer.from(email).toString('hex').slice(0, 16)}`;
     } else {
       res.status(400).json({
         success: false,

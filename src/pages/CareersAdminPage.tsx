@@ -28,6 +28,7 @@ import {
   CareerApplication,
   AuthUser,
 } from '../utils/careersApi';
+import { GoogleSignInButton } from '../components/GoogleSignInButton';
 
 export const CareersAdminPage: React.FC = () => {
   const navigate = useNavigate();
@@ -460,13 +461,22 @@ export const CareersAdminPage: React.FC = () => {
 
                 {/* Google Identity Services Button */}
                 <div className="flex justify-center pt-1">
-                  <div
-                    ref={(el) => {
-                      googleAdminBtnRef.current = el;
-                      renderGoogleAdminButton();
+                  <GoogleSignInButton
+                    onSuccess={(verifiedUser) => {
+                      setAuthLoading(false);
+                      if (!verifiedUser.isAdmin) {
+                        setAuthError('Your account is not authorized to access the Careers Admin Dashboard.');
+                        setCurrentUser(verifiedUser);
+                        return;
+                      }
+                      setAuthError(null);
+                      setCurrentUser(verifiedUser);
+                      loadOpportunities();
                     }}
-                    id="google-admin-signin-btn"
-                    className="min-h-[44px] flex items-center justify-center"
+                    onError={(err) => setAuthError(err)}
+                    text="signin_with"
+                    size="large"
+                    theme="filled_blue"
                   />
                 </div>
 

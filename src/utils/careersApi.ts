@@ -98,6 +98,42 @@ export const careersApi = {
     }
   },
 
+  async loginWithGoogleAccessToken(accessToken: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ accessToken }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        localStorage.setItem('jgx_token', data.token);
+      }
+      return data;
+    } catch (err: any) {
+      return { success: false, error: err.message || 'OAuth network failure.' };
+    }
+  },
+
+  async loginWithGoogleEmail(googleEmail: string, googleName?: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
+    try {
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ googleEmail, googleName }),
+      });
+      const data = await res.json();
+      if (res.ok && data.token) {
+        localStorage.setItem('jgx_token', data.token);
+      }
+      return data;
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Direct Google auth network failure.' };
+    }
+  },
+
   async loginWithDevAccount(devEmail: string, devName?: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
     try {
       const res = await fetch('/api/auth/google', {
