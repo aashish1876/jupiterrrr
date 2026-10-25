@@ -153,11 +153,13 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
                 } else {
                   const msg = res.error || 'Failed to authenticate Google user.';
                   setErrorMsg(msg);
+                  setShowChooserModal(true);
                   if (onError) onError(msg);
                 }
               } catch (apiErr: any) {
                 setLoading(false);
                 setErrorMsg(apiErr.message || 'Authentication error.');
+                setShowChooserModal(true);
                 if (onError) onError(apiErr.message);
               }
             }
