@@ -219,10 +219,14 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
     handleSelectGoogleAccount(customEmail.trim().toLowerCase());
   };
 
-  const handleCopyOrigin = () => {
-    navigator.clipboard.writeText(window.location.origin);
-    setCopiedOrigin(true);
-    setTimeout(() => setCopiedOrigin(false), 2500);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
+
+  const copyToClipboard = (text: string, key: string) => {
+    // Ensure clean origin without trailing slash
+    const clean = text.replace(/\/+$/, '');
+    navigator.clipboard.writeText(clean);
+    setCopiedKey(key);
+    setTimeout(() => setCopiedKey(null), 2500);
   };
 
   const getButtonText = () => {
@@ -289,9 +293,9 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
       {/* ========================================================= */}
       {showChooserModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
-          <div className="w-full max-w-md rounded-2xl bg-white text-[#202124] shadow-2xl border border-neutral-200 overflow-hidden relative">
+          <div className="w-full max-w-lg rounded-2xl bg-white text-[#202124] shadow-2xl border border-neutral-200 overflow-hidden relative max-h-[90vh] flex flex-col">
             {/* Modal Header */}
-            <div className="p-6 pb-4 border-b border-neutral-100 flex items-start justify-between">
+            <div className="p-5 pb-4 border-b border-neutral-100 flex items-start justify-between shrink-0">
               <div className="flex items-center gap-3">
                 <svg className="w-6 h-6 shrink-0" viewBox="0 0 24 24">
                   <path
@@ -335,10 +339,14 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 space-y-4">
-              {/* Account List */}
+            <div className="p-5 space-y-4 overflow-y-auto">
+              {/* Account Selection Section */}
               <div className="space-y-2">
-                {/* Primary Detected Account (aashish2008.15@gmail.com) */}
+                <span className="text-[11px] font-semibold text-neutral-500 uppercase tracking-wider block">
+                  Select Account
+                </span>
+
+                {/* Primary Administrator Account (aashish2008.15@gmail.com) */}
                 <button
                   type="button"
                   onClick={() => handleSelectGoogleAccount('aashish2008.15@gmail.com', 'Aashish')}
@@ -367,10 +375,10 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowCustomEmailInput(true)}
-                    className="w-full flex items-center gap-3 p-3.5 rounded-xl border border-dashed border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-left transition-colors"
+                    className="w-full flex items-center gap-3 p-3 rounded-xl border border-dashed border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-left transition-colors"
                   >
-                    <div className="w-10 h-10 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-600">
-                      <User className="w-5 h-5" />
+                    <div className="w-9 h-9 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-600">
+                      <User className="w-4 h-4" />
                     </div>
                     <div>
                       <span className="text-xs font-semibold text-[#202124] block">
@@ -382,15 +390,15 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
                     </div>
                   </button>
                 ) : (
-                  <form onSubmit={handleCustomEmailSubmit} className="p-4 rounded-xl bg-neutral-50 border border-neutral-200 space-y-3">
+                  <form onSubmit={handleCustomEmailSubmit} className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200 space-y-3">
                     <label className="block text-xs font-semibold text-[#202124]">
-                      Enter your Google email address:
+                      Enter candidate Google email address:
                     </label>
                     <input
                       type="email"
                       value={customEmail}
                       onChange={(e) => setCustomEmail(e.target.value)}
-                      placeholder="name@gmail.com"
+                      placeholder="candidate@gmail.com"
                       autoFocus
                       required
                       className="w-full px-3 py-2 rounded-lg border border-neutral-300 focus:border-[#1a73e8] focus:ring-2 focus:ring-[#1a73e8]/20 text-xs text-[#202124] outline-none"
@@ -415,46 +423,115 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
                 )}
               </div>
 
-              {/* Origin Notice (Explains why direct popup might show Error 400 in Google Cloud Console) */}
-              <div className="p-3.5 rounded-xl bg-[#f8f9fa] border border-neutral-200 text-xs space-y-2">
-                <div className="flex items-start gap-2 text-[#5f6368]">
-                  <Shield className="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" />
-                  <div>
-                    <span className="font-semibold text-[#202124] block">
-                      Google OAuth Origin Configuration
-                    </span>
-                    <span className="text-[11px] leading-relaxed">
-                      If Google's popup displayed <strong className="text-rose-600">Error 400: origin_mismatch</strong>, register this app URL under <em>Authorized JavaScript origins</em> in Google Cloud Console:
-                    </span>
+              {/* Error 400: Origin Mismatch Resolution Panel */}
+              <div className="p-4 rounded-xl bg-[#f8fafd] border border-[#1a73e8]/25 text-xs space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex items-start gap-2.5 text-[#202124]">
+                    <Shield className="w-4 h-4 text-[#1a73e8] shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-semibold text-xs text-[#1a73e8] block">
+                        Resolve "Error 400: origin_mismatch" in Google Cloud
+                      </span>
+                      <span className="text-[11px] text-[#5f6368] leading-relaxed block mt-0.5">
+                        Google requires you to register your website origins in your Google Cloud Console. Origins must <strong>NEVER have a trailing slash (/)</strong>.
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2 p-2 rounded bg-white border border-neutral-200 text-[11px] font-mono text-[#202124]">
-                  <span className="truncate">{window.location.origin}</span>
-                  <button
-                    type="button"
-                    onClick={handleCopyOrigin}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-[10px] font-sans font-semibold shrink-0 transition-colors"
-                  >
-                    {copiedOrigin ? (
-                      <>
-                        <Check className="w-3 h-3 text-emerald-600" />
-                        <span className="text-emerald-700">Copied!</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="w-3 h-3" />
-                        <span>Copy Origin</span>
-                      </>
+                {/* Quick copy items */}
+                <div className="space-y-1.5">
+                  {/* Origin 1: www */}
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-neutral-200 text-[11px]">
+                    <span className="font-mono text-[#202124] truncate">https://www.jupitergenxai.com</span>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('https://www.jupitergenxai.com', 'www')}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-[10px] font-semibold shrink-0 transition-colors"
+                    >
+                      {copiedKey === 'www' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-700">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Origin 2: apex */}
+                  <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-neutral-200 text-[11px]">
+                    <span className="font-mono text-[#202124] truncate">https://jupitergenxai.com</span>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard('https://jupitergenxai.com', 'apex')}
+                      className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-[10px] font-semibold shrink-0 transition-colors"
+                    >
+                      {copiedKey === 'apex' ? (
+                        <>
+                          <Check className="w-3 h-3 text-emerald-600" />
+                          <span className="text-emerald-700">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3 h-3" />
+                          <span>Copy</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  {/* Origin 3: current origin */}
+                  {window.location.origin !== 'https://www.jupitergenxai.com' &&
+                    window.location.origin !== 'https://jupitergenxai.com' && (
+                      <div className="flex items-center justify-between gap-2 p-2 rounded-lg bg-white border border-neutral-200 text-[11px]">
+                        <span className="font-mono text-[#202124] truncate">{window.location.origin}</span>
+                        <button
+                          type="button"
+                          onClick={() => copyToClipboard(window.location.origin, 'current')}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded bg-neutral-100 hover:bg-neutral-200 text-neutral-700 text-[10px] font-semibold shrink-0 transition-colors"
+                        >
+                          {copiedKey === 'current' ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              <span className="text-emerald-700">Copied!</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
                     )}
-                  </button>
+                </div>
+
+                {/* Step instruction and external link */}
+                <div className="pt-1 flex items-center justify-between gap-2 text-[11px]">
+                  <span className="text-[#5f6368]">
+                    Paste under <strong>Authorized JavaScript origins</strong> in your OAuth Client.
+                  </span>
+                  <a
+                    href="https://console.cloud.google.com/apis/credentials"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="inline-flex items-center gap-1 font-semibold text-[#1a73e8] hover:underline shrink-0"
+                  >
+                    <span>Google Console</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between text-[11px] text-[#5f6368]">
-              <span>To continue, Google will share your name and email.</span>
+            <div className="p-4 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between text-[11px] text-[#5f6368] shrink-0">
+              <span>Google authentication ensures verified applicant and admin access.</span>
               <button
                 type="button"
                 onClick={() => {
@@ -463,7 +540,7 @@ export const GoogleSignInButton: React.FC<GoogleSignInButtonProps> = ({
                 }}
                 className="px-3 py-1 text-xs text-neutral-600 hover:text-neutral-900 font-medium"
               >
-                Cancel
+                Close
               </button>
             </div>
           </div>
