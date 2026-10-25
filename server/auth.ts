@@ -1,7 +1,7 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import crypto from 'crypto';
 import { OAuth2Client } from 'google-auth-library';
-import { AuthUser } from './types';
+import type { AuthUser } from './types.ts';
 
 const SESSION_SECRET =
   process.env.SESSION_SECRET ||

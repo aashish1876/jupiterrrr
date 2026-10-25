@@ -3,7 +3,7 @@ import cookieParser from 'cookie-parser';
 import path from 'path';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
-import { apiRouter } from './server/routes';
+import { apiRouter } from './server/routes.ts';
 
 dotenv.config();
 
@@ -14,11 +14,19 @@ async function startServer() {
   const app = express();
   const PORT = Number(process.env.PORT) || 3000;
 
+  // Enable proxy trust for Cloud Run / reverse proxies
+  app.set('trust proxy', 1);
+
   app.use(express.json());
   app.use(cookieParser());
 
   // Mount API router
   app.use('/api', apiRouter);
+
+  // Return clean JSON 404 for any unmatched API endpoints
+  app.all('/api/*', (_req, res) => {
+    res.status(404).json({ success: false, error: 'API endpoint not found.' });
+  });
 
   const isProduction = process.env.NODE_ENV === 'production';
 

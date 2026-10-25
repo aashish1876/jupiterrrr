@@ -56,14 +56,9 @@ export const CareersSection: React.FC = () => {
     setCurrentUser(verifiedUser);
     setAuthError(null);
 
-    // Admin Authorization Check
+    // Admin Authorization Check - direct transition to Admin Portal
     if (verifiedUser.isAdmin) {
-      setAdminRedirectNotice(
-        `Verified Administrator matched (${verifiedUser.email}). Opening Careers Admin Dashboard...`
-      );
-      setTimeout(() => {
-        navigate('/careers/admin');
-      }, 700);
+      navigate('/careers/admin');
     }
   };
 

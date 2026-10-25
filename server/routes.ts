@@ -1,5 +1,5 @@
-import { Router, Request, Response } from 'express';
-import { db } from './db';
+import express, { type Request, type Response } from 'express';
+import { db } from './db.ts';
 import {
   authenticateMiddleware,
   requireAuth,
@@ -8,10 +8,10 @@ import {
   isEmailAuthorizedAdmin,
   createSessionToken,
   getAuthorizedAdminEmails,
-} from './auth';
-import { AuthUser, ApplicationStatus, OpportunityStatus } from './types';
+} from './auth.ts';
+import type { AuthUser, ApplicationStatus, OpportunityStatus } from './types.ts';
 
-export const apiRouter = Router();
+export const apiRouter = express.Router();
 
 apiRouter.use(authenticateMiddleware);
 

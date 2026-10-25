@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { CareerOpportunity, CareerApplication, ApplicationStatus } from './types';
+import type { CareerOpportunity, CareerApplication, ApplicationStatus } from './types.ts';
 
 interface DatabaseSchema {
   opportunities: CareerOpportunity[];
