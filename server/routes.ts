@@ -90,22 +90,33 @@ apiRouter.post('/auth/google', async (req: Request, res: Response) => {
       userId = `google_${verified.sub}`;
     } else if (accessToken) {
       // Verify via Google's OAuth2 userinfo endpoint
-      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-        headers: { Authorization: `Bearer ${accessToken}` },
-      });
-      if (!response.ok) {
-        res.status(401).json({
+      try {
+        const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+          headers: { Authorization: `Bearer ${accessToken}` },
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          console.warn('[Auth] Google userinfo rejected access token:', errText);
+          res.status(401).json({
+            success: false,
+            error: 'Failed to verify Google access token. Please select your Google account again.',
+          });
+          return;
+        }
+        const data = await response.json();
+        email = data.email.toLowerCase().trim();
+        name = data.name || email.split('@')[0];
+        picture = data.picture;
+        isEmailVerified = Boolean(data.email_verified);
+        userId = `google_${data.sub}`;
+      } catch (netErr: any) {
+        console.error('[Auth] Network error verifying Google access token:', netErr);
+        res.status(502).json({
           success: false,
-          error: 'Failed to verify Google access token.',
+          error: 'Could not contact Google authentication servers. Please verify your connection or use direct sign in.',
         });
         return;
       }
-      const data = await response.json();
-      email = data.email.toLowerCase().trim();
-      name = data.name || email.split('@')[0];
-      picture = data.picture;
-      isEmailVerified = Boolean(data.email_verified);
-      userId = `google_${data.sub}`;
     } else if (googleEmail || devEmail || directEmail) {
       // Direct verified Google sign-in fallback (e.g., when Cloud Console origin whitelist is pending)
       const rawEmail = (googleEmail || devEmail || directEmail || '').trim().toLowerCase();
