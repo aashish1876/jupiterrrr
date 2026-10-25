@@ -45,7 +45,7 @@ export interface AuthUser {
   isEmailVerified: boolean;
 }
 
-const getHeaders = () => {
+const getHeaders = (): Record<string, string> => {
   const token = localStorage.getItem('jgx_token');
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -56,165 +56,193 @@ const getHeaders = () => {
   return headers;
 };
 
+/**
+ * Robust fetch wrapper that safely reads text before parsing JSON.
+ * Prevents "Failed to execute 'json' on 'Response': Unexpected end of JSON input" errors.
+ */
+async function safeFetch<T = any>(
+  url: string,
+  options?: RequestInit,
+  fallback: T = {} as T
+): Promise<{ ok: boolean; status: number; data: T }> {
+  try {
+    const res = await fetch(url, options);
+    let data: T = fallback;
+    try {
+      const text = await res.text();
+      if (text && text.trim()) {
+        data = JSON.parse(text);
+      }
+    } catch {
+      data = fallback;
+    }
+    return { ok: res.ok, status: res.status, data };
+  } catch (netErr: any) {
+    console.warn(`[safeFetch] Network error for ${url}:`, netErr?.message || netErr);
+    return { ok: false, status: 0, data: fallback };
+  }
+}
+
 export const careersApi = {
   async getAuthMe(): Promise<{ authenticated: boolean; user: AuthUser | null }> {
-    try {
-      const res = await fetch('/api/auth/me', {
+    const { ok, data } = await safeFetch<{ authenticated: boolean; user: AuthUser | null }>(
+      '/api/auth/me',
+      {
         headers: getHeaders(),
         credentials: 'include',
-      });
-      if (!res.ok) return { authenticated: false, user: null };
-      return await res.json();
-    } catch {
-      return { authenticated: false, user: null };
-    }
+      },
+      { authenticated: false, user: null }
+    );
+    if (!ok || !data) return { authenticated: false, user: null };
+    return data;
   },
 
   async getAuthConfig(): Promise<{ googleClientId: string; hasConfiguredAdmins: boolean }> {
-    try {
-      const res = await fetch('/api/auth/config');
-      if (!res.ok) return { googleClientId: '', hasConfiguredAdmins: false };
-      return await res.json();
-    } catch {
-      return { googleClientId: '', hasConfiguredAdmins: false };
-    }
+    const { ok, data } = await safeFetch<{ googleClientId: string; hasConfiguredAdmins: boolean }>(
+      '/api/auth/config',
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { googleClientId: '', hasConfiguredAdmins: false }
+    );
+    if (!ok || !data) return { googleClientId: '', hasConfiguredAdmins: false };
+    return data;
   },
 
-  async loginWithGoogleToken(credential: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/google', {
+  async loginWithGoogleToken(credential: string): Promise<{ success: boolean; user?: AuthUser; token?: string; error?: string }> {
+    const { ok, data } = await safeFetch<{ success: boolean; user?: AuthUser; token?: string; error?: string }>(
+      '/api/auth/google',
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ credential }),
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('jgx_token', data.token);
-      }
-      return data;
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Login network failure.' };
+      },
+      { success: false, error: 'Authentication failed. Please try again.' }
+    );
+    if (ok && data?.token) {
+      localStorage.setItem('jgx_token', data.token);
     }
+    return data;
   },
 
-  async loginWithGoogleAccessToken(accessToken: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/google', {
+  async loginWithGoogleAccessToken(accessToken: string): Promise<{ success: boolean; user?: AuthUser; token?: string; error?: string }> {
+    const { ok, data } = await safeFetch<{ success: boolean; user?: AuthUser; token?: string; error?: string }>(
+      '/api/auth/google',
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
         body: JSON.stringify({ accessToken }),
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('jgx_token', data.token);
-      }
-      return data;
-    } catch (err: any) {
-      return { success: false, error: err.message || 'OAuth network failure.' };
+      },
+      { success: false, error: 'OAuth authentication failed.' }
+    );
+    if (ok && data?.token) {
+      localStorage.setItem('jgx_token', data.token);
     }
+    return data;
   },
 
-  async loginWithGoogleEmail(googleEmail: string, googleName?: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/google', {
+  async loginWithGoogleEmail(googleEmail: string, googleName?: string): Promise<{ success: boolean; user?: AuthUser; token?: string; error?: string }> {
+    const { ok, data } = await safeFetch<{ success: boolean; user?: AuthUser; token?: string; error?: string }>(
+      '/api/auth/google',
+      {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ googleEmail, googleName }),
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('jgx_token', data.token);
-      }
-      return data;
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Direct Google auth network failure.' };
+        body: JSON.stringify({ googleEmail, googleName, email: googleEmail, name: googleName }),
+      },
+      { success: false, error: 'Google sign-in could not be completed.' }
+    );
+    if (ok && data?.token) {
+      localStorage.setItem('jgx_token', data.token);
     }
+    return data;
   },
 
-  async loginWithDevAccount(devEmail: string, devName?: string): Promise<{ success: boolean; user?: AuthUser; error?: string }> {
-    try {
-      const res = await fetch('/api/auth/google', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ devEmail, devName }),
-      });
-      const data = await res.json();
-      if (res.ok && data.token) {
-        localStorage.setItem('jgx_token', data.token);
-      }
-      return data;
-    } catch (err: any) {
-      return { success: false, error: err.message || 'Login network failure.' };
-    }
+  async loginWithDevAccount(devEmail: string, devName?: string): Promise<{ success: boolean; user?: AuthUser; token?: string; error?: string }> {
+    return this.loginWithGoogleEmail(devEmail, devName);
   },
 
   async logout(): Promise<void> {
     localStorage.removeItem('jgx_token');
-    await fetch('/api/auth/logout', {
+    await safeFetch('/api/auth/logout', {
       method: 'POST',
       credentials: 'include',
     });
   },
 
   async getOpportunities(): Promise<CareerOpportunity[]> {
-    const res = await fetch('/api/careers', {
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch opportunities');
-    return data.opportunities || [];
+    const { ok, data } = await safeFetch<{ success: boolean; opportunities: CareerOpportunity[]; error?: string }>(
+      '/api/careers',
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false, opportunities: [] }
+    );
+    if (!ok) throw new Error(data?.error || 'Failed to fetch opportunities');
+    return data?.opportunities || [];
   },
 
   async getOpportunity(id: string): Promise<CareerOpportunity> {
-    const res = await fetch(`/api/careers/${id}`, {
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch opportunity');
+    const { ok, data } = await safeFetch<{ success: boolean; opportunity: CareerOpportunity; error?: string }>(
+      `/api/careers/${id}`,
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false, opportunity: null as any }
+    );
+    if (!ok || !data?.opportunity) throw new Error(data?.error || 'Failed to fetch opportunity');
     return data.opportunity;
   },
 
-  async createOpportunity(data: Partial<CareerOpportunity>): Promise<CareerOpportunity> {
-    const res = await fetch('/api/careers', {
-      method: 'POST',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Failed to create opportunity');
-    return result.opportunity;
+  async createOpportunity(payload: Partial<CareerOpportunity>): Promise<CareerOpportunity> {
+    const { ok, data } = await safeFetch<{ success: boolean; opportunity: CareerOpportunity; error?: string }>(
+      '/api/careers',
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      },
+      { success: false, opportunity: null as any }
+    );
+    if (!ok || !data?.opportunity) throw new Error(data?.error || 'Failed to create opportunity');
+    return data.opportunity;
   },
 
   async updateOpportunity(id: string, updates: Partial<CareerOpportunity>): Promise<CareerOpportunity> {
-    const res = await fetch(`/api/careers/${id}`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(updates),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Failed to update opportunity');
-    return result.opportunity;
+    const { ok, data } = await safeFetch<{ success: boolean; opportunity: CareerOpportunity; error?: string }>(
+      `/api/careers/${id}`,
+      {
+        method: 'PATCH',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(updates),
+      },
+      { success: false, opportunity: null as any }
+    );
+    if (!ok || !data?.opportunity) throw new Error(data?.error || 'Failed to update opportunity');
+    return data.opportunity;
   },
 
   async deleteOpportunity(id: string): Promise<void> {
-    const res = await fetch(`/api/careers/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Failed to delete opportunity');
+    const { ok, data } = await safeFetch<{ success: boolean; error?: string }>(
+      `/api/careers/${id}`,
+      {
+        method: 'DELETE',
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false }
+    );
+    if (!ok) throw new Error(data?.error || 'Failed to delete opportunity');
   },
 
-  async submitApplication(data: {
+  async submitApplication(appData: {
     careerId: string;
     applicantName: string;
     applicantEmail: string;
@@ -224,34 +252,59 @@ export const careersApi = {
     linkedin?: string;
     portfolio?: string;
   }): Promise<{ id: string; status: string; message: string }> {
-    const res = await fetch('/api/applications', {
-      method: 'POST',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify(data),
-    });
-    const result = await res.json();
-    if (!res.ok) throw new Error(result.error || 'Failed to submit application');
-    return result;
+    const { ok, data } = await safeFetch<{
+      success: boolean;
+      id?: string;
+      status?: string;
+      message?: string;
+      error?: string;
+      application?: any;
+    }>(
+      '/api/applications',
+      {
+        method: 'POST',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(appData),
+      },
+      { success: false }
+    );
+    if (!ok) throw new Error(data?.error || 'Failed to submit application');
+    return {
+      id: data?.application?.id || data?.id || '',
+      status: data?.application?.status || data?.status || 'SUBMITTED',
+      message: data?.message || 'Your application has been received successfully.',
+    };
   },
 
   async getMyApplications(): Promise<CareerApplication[]> {
-    const res = await fetch('/api/applications/my', {
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch my applications');
-    return data.applications || [];
+    const { ok, data } = await safeFetch<{ success: boolean; applications: CareerApplication[]; error?: string }>(
+      '/api/applications/my',
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false, applications: [] }
+    );
+    if (!ok) throw new Error(data?.error || 'Failed to fetch my applications');
+    return data?.applications || [];
   },
 
   async getOpportunityApplications(careerId: string): Promise<{ opportunity: CareerOpportunity; applications: CareerApplication[] }> {
-    const res = await fetch(`/api/applications/opportunity/${careerId}`, {
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to fetch applications');
+    const { ok, data } = await safeFetch<{
+      success: boolean;
+      opportunity: CareerOpportunity;
+      applications: CareerApplication[];
+      error?: string;
+    }>(
+      `/api/applications/opportunity/${careerId}`,
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false, opportunity: null as any, applications: [] }
+    );
+    if (!ok) throw new Error(data?.error || 'Failed to fetch applications');
     return data;
   },
 
@@ -262,24 +315,30 @@ export const careersApi = {
    * setting reviewedAt and reviewedBy in the database.
    */
   async getApplicationDetails(id: string): Promise<CareerApplication> {
-    const res = await fetch(`/api/applications/${id}`, {
-      headers: getHeaders(),
-      credentials: 'include',
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to load application details');
+    const { ok, data } = await safeFetch<{ success: boolean; application: CareerApplication; error?: string }>(
+      `/api/applications/${id}`,
+      {
+        headers: getHeaders(),
+        credentials: 'include',
+      },
+      { success: false, application: null as any }
+    );
+    if (!ok || !data?.application) throw new Error(data?.error || 'Failed to load application details');
     return data.application;
   },
 
   async updateApplicationStatus(id: string, status: string): Promise<CareerApplication> {
-    const res = await fetch(`/api/applications/${id}/status`, {
-      method: 'PATCH',
-      headers: getHeaders(),
-      credentials: 'include',
-      body: JSON.stringify({ status }),
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Failed to update application status');
+    const { ok, data } = await safeFetch<{ success: boolean; application: CareerApplication; error?: string }>(
+      `/api/applications/${id}/status`,
+      {
+        method: 'PATCH',
+        headers: getHeaders(),
+        credentials: 'include',
+        body: JSON.stringify({ status }),
+      },
+      { success: false, application: null as any }
+    );
+    if (!ok || !data?.application) throw new Error(data?.error || 'Failed to update application status');
     return data.application;
   },
 };

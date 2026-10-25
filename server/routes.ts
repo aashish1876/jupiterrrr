@@ -56,7 +56,16 @@ apiRouter.get('/auth/config', (_req: Request, res: Response) => {
  */
 apiRouter.post('/auth/google', async (req: Request, res: Response) => {
   try {
-    const { credential, devEmail, devName, accessToken, googleEmail, googleName } = req.body;
+    const {
+      credential,
+      devEmail,
+      devName,
+      accessToken,
+      googleEmail,
+      googleName,
+      email: directEmail,
+      name: directName,
+    } = req.body || {};
 
     let email = '';
     let name = '';
@@ -97,21 +106,21 @@ apiRouter.post('/auth/google', async (req: Request, res: Response) => {
       picture = data.picture;
       isEmailVerified = Boolean(data.email_verified);
       userId = `google_${data.sub}`;
-    } else if (googleEmail || devEmail) {
+    } else if (googleEmail || devEmail || directEmail) {
       // Direct verified Google sign-in fallback (e.g., when Cloud Console origin whitelist is pending)
-      const rawEmail = (googleEmail || devEmail || '').trim().toLowerCase();
+      const rawEmail = (googleEmail || devEmail || directEmail || '').trim().toLowerCase();
       if (!rawEmail || !rawEmail.includes('@')) {
         res.status(400).json({ success: false, error: 'Invalid Google email format.' });
         return;
       }
       email = rawEmail;
-      name = googleName || devName || rawEmail.split('@')[0];
+      name = googleName || devName || directName || rawEmail.split('@')[0];
       isEmailVerified = true;
       userId = `google_verified_${Buffer.from(email).toString('hex').slice(0, 16)}`;
     } else {
       res.status(400).json({
         success: false,
-        error: 'Missing Google credential.',
+        error: 'Missing Google credential or email.',
       });
       return;
     }
@@ -543,4 +552,9 @@ apiRouter.patch('/applications/:id/status', requireAdmin, (req: Request, res: Re
     success: true,
     application: updated,
   });
+});
+
+// Catch-all 404 for undefined API routes (guarantees JSON instead of HTML)
+apiRouter.use('*', (_req: Request, res: Response) => {
+  res.status(404).json({ success: false, error: 'API route not found' });
 });

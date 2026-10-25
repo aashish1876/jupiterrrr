@@ -38,7 +38,6 @@ export const CareersAdminPage: React.FC = () => {
   const [authLoading, setAuthLoading] = useState(true);
   const [authError, setAuthError] = useState<string | null>(null);
   const [googleClientId, setGoogleClientId] = useState<string>('');
-  const googleAdminBtnRef = useRef<HTMLDivElement | null>(null);
 
   // Dashboard Data State
   const [opportunities, setOpportunities] = useState<CareerOpportunity[]>([]);
@@ -75,71 +74,7 @@ export const CareersAdminPage: React.FC = () => {
     checkAuth();
   }, []);
 
-  const renderGoogleAdminButton = () => {
-    const google = (window as any).google;
-    if (googleAdminBtnRef.current && google?.accounts?.id && googleClientId) {
-      try {
-        googleAdminBtnRef.current.innerHTML = '';
-        google.accounts.id.renderButton(googleAdminBtnRef.current, {
-          theme: 'filled_blue',
-          size: 'large',
-          width: 320,
-          text: 'signin_with',
-          shape: 'rectangular',
-        });
-      } catch (err) {
-        console.error('[GIS Admin] renderButton error:', err);
-      }
-    }
-  };
 
-  // Initialize Google Identity Services
-  useEffect(() => {
-    let intervalId: any;
-    const initGsi = () => {
-      const google = (window as any).google;
-      if (google?.accounts?.id && googleClientId) {
-        try {
-          google.accounts.id.initialize({
-            client_id: googleClientId,
-            auto_select: false,
-            callback: async (response: any) => {
-              if (response?.credential) {
-                setAuthLoading(true);
-                setAuthError(null);
-                const res = await careersApi.loginWithGoogleToken(response.credential);
-                setAuthLoading(false);
-
-                if (!res.success || !res.user) {
-                  setAuthError(res.error || 'Google authentication failed.');
-                  return;
-                }
-
-                if (!res.user.isAdmin) {
-                  setAuthError('Your account is not authorized to access the Careers Admin Dashboard.');
-                  setCurrentUser(res.user);
-                  return;
-                }
-
-                // Authorized Admin matched! Open admin portal immediately!
-                setCurrentUser(res.user);
-                loadOpportunities();
-              }
-            },
-          });
-
-          renderGoogleAdminButton();
-          clearInterval(intervalId);
-        } catch (err) {
-          console.error('[Google Admin Auth] Init error:', err);
-        }
-      }
-    };
-
-    initGsi();
-    intervalId = setInterval(initGsi, 300);
-    return () => clearInterval(intervalId);
-  }, [googleClientId, authLoading, currentUser]);
 
   const checkAuth = async () => {
     setAuthLoading(true);

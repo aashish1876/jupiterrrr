@@ -81,12 +81,6 @@ export const CareersPage: React.FC = () => {
   const [googleClientId, setGoogleClientId] = useState<string>('');
   const [authLoading, setAuthLoading] = useState(false);
   const [googleAuthError, setGoogleAuthError] = useState<string | null>(null);
-
-  // Button DOM container refs
-  const googleApplyBtnRef = useRef<HTMLDivElement | null>(null);
-  const googleTrackBtnRef = useRef<HTMLDivElement | null>(null);
-  const googleBannerBtnRef = useRef<HTMLDivElement | null>(null);
-
   // Application Modal State
   const [applyingToOpp, setApplyingToOpp] = useState<CareerOpportunity | null>(null);
   const [appForm, setAppForm] = useState({
@@ -109,111 +103,7 @@ export const CareersPage: React.FC = () => {
   useEffect(() => {
     loadOpportunities();
     checkCurrentUser();
-    loadAuthConfig();
   }, []);
-
-  const loadAuthConfig = async () => {
-    try {
-      const config = await careersApi.getAuthConfig();
-      if (config.googleClientId) {
-        setGoogleClientId(config.googleClientId);
-      }
-    } catch (err) {
-      console.error('Failed to load auth configuration:', err);
-    }
-  };
-
-  const renderGoogleButtons = () => {
-    const google = (window as any).google;
-    if (!google?.accounts?.id || !googleClientId) return;
-
-    // Render Apply Modal Google Button
-    if (googleApplyBtnRef.current) {
-      try {
-        googleApplyBtnRef.current.innerHTML = '';
-        google.accounts.id.renderButton(googleApplyBtnRef.current, {
-          theme: 'filled_blue',
-          size: 'large',
-          width: 320,
-          text: 'continue_with',
-          shape: 'rectangular',
-        });
-      } catch (err) {
-        console.error('[GIS] Render apply button error:', err);
-      }
-    }
-
-    // Render Track Applications Google Button
-    if (googleTrackBtnRef.current) {
-      try {
-        googleTrackBtnRef.current.innerHTML = '';
-        google.accounts.id.renderButton(googleTrackBtnRef.current, {
-          theme: 'filled_blue',
-          size: 'large',
-          width: 320,
-          text: 'signin_with',
-          shape: 'rectangular',
-        });
-      } catch (err) {
-        console.error('[GIS] Render track button error:', err);
-      }
-    }
-
-    // Render Top Banner Google Button
-    if (googleBannerBtnRef.current) {
-      try {
-        googleBannerBtnRef.current.innerHTML = '';
-        google.accounts.id.renderButton(googleBannerBtnRef.current, {
-          theme: 'outline',
-          size: 'medium',
-          text: 'signin_with',
-          shape: 'pill',
-        });
-      } catch (err) {
-        console.error('[GIS] Render banner button error:', err);
-      }
-    }
-  };
-
-  // Google Identity Services Setup
-  useEffect(() => {
-    let intervalId: any;
-    const initGoogleIdentity = () => {
-      const google = (window as any).google;
-      if (!google?.accounts?.id || !googleClientId) return;
-
-      try {
-        google.accounts.id.initialize({
-          client_id: googleClientId,
-          auto_select: false,
-          cancel_on_tap_outside: true,
-          callback: async (response: any) => {
-            if (response?.credential) {
-              setAuthLoading(true);
-              setGoogleAuthError(null);
-              const res = await careersApi.loginWithGoogleToken(response.credential);
-              setAuthLoading(false);
-
-              if (res.success && res.user) {
-                handleGoogleLoginSuccess(res.user);
-              } else {
-                setGoogleAuthError(res.error || 'Google authentication failed.');
-              }
-            }
-          },
-        });
-
-        renderGoogleButtons();
-        clearInterval(intervalId);
-      } catch (err) {
-        console.error('[Google Identity Services] Initialization error:', err);
-      }
-    };
-
-    initGoogleIdentity();
-    intervalId = setInterval(initGoogleIdentity, 300);
-    return () => clearInterval(intervalId);
-  }, [googleClientId, applyingToOpp, activeTab, currentUser]);
 
   const handleGoogleLoginSuccess = (loggedInUser: AuthUser) => {
     setGoogleAuthError(null);
